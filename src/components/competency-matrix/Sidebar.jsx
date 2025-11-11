@@ -15,6 +15,11 @@ const Sidebar = ({ view, setView, userRole }) => {
       { id: 'role-mapping', label: 'Role Mapping' },
       { id: 'reports', label: 'Reports' }
     );
+    
+    // Add Masters module for admin only
+    if (userRole === 'admin') {
+      navItems.push({ id: 'masters', label: 'Masters' });
+    }
   }
 
   return (
