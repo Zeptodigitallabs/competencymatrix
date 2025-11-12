@@ -1,8 +1,8 @@
 import axios from 'axios';
 
+const BASE_URL = window.APP_CONFIG?.BASE_URL || 'https://lmsapi.zeptolearn.com/';
 export default function axiosConfig() {
-    const instance = axios.create({ baseURL: window.BASE_URL });
-
+    const instance = axios.create({ baseURL: BASE_URL });
     const IP = sessionStorage.getItem('ip');
     const platform = sessionStorage.getItem('platform');
     const AppCode = "LMS";
@@ -30,7 +30,7 @@ export default function axiosConfig() {
                             password: localStorage.getItem('password'),
                         }
                     }
-                    axios.post(`${window.BASE_URL}AuthenticateUser`, {}, config).then(async response => {
+                    axios.post(`${BASE_URL}AuthenticateUser`, {}, config).then(async response => {
                         error.config.headers['Token'] = response.headers.token;
                         sessionStorage.setItem('token', response.headers.token);
                         // sessionStorage.setItem('token', response.headers.token)
