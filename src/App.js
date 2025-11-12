@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import CompetencyMatrixApp from './CompetencyMatrixApp';
 import Login from './auth/Login';
+//import Login from './components/auth/Login';
 import { AdminRoute, ManagerRoute, EmployeeRoute } from './auth/ProtectedRoute';
 
 // Main App with routing

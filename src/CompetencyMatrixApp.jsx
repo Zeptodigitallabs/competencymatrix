@@ -7,6 +7,10 @@ import ReportsView from "./ReportsView";
 import EmployeeAssessments from "./components/competency-matrix/EmployeeAssessments";
 import EmployeeLearning from "./components/competency-matrix/EmployeeLearning";
 import EmployeeProfile from "./components/competency-matrix/EmployeeProfile";
+import CompetencyCategoryMaster from "./components/masters/CompetencyCategoryMaster";
+import CompetencyMaster from "./components/masters/CompetencyMaster";
+import EmployeeRoleMaster from "./components/masters/EmployeeRoleMaster";
+import EmployeeRoleCompetencyMapping from "./components/masters/EmployeeRoleCompetencyMapping";
 
 // Competency Matrix - Single-file React + Tailwind clickable prototype
 // Default export: CompetencyMatrixApp
@@ -170,6 +174,15 @@ function Topbar({ onToggleSidebar }) {
 }
 
 function Sidebar({ view, setView, userRole }) {
+  const [expandedItems, setExpandedItems] = React.useState({});
+
+  const toggleItem = (itemId) => {
+    setExpandedItems(prev => ({
+      ...prev,
+      [itemId]: !prev[itemId]
+    }));
+  };
+
   // Navigation items based on user role
   const getNavItems = () => {
     const commonItems = [
@@ -180,6 +193,16 @@ function Sidebar({ view, setView, userRole }) {
       { id: 'competency-library', label: 'Competency Management' },
       { id: 'role-mapping', label: 'Role Mappings' },
       { id: 'reports', label: 'Reports & Analytics' },
+      { 
+        id: 'masters', 
+        label: 'Masters',
+        children: [
+          { id: 'competency-category', label: 'Competency Categories' },
+          { id: 'competency-master', label: 'Competency Master' },
+          { id: 'employee-role-master', label: 'Employee Role Master' },
+          { id: 'employee-role-competency-mapping', label: 'Role Competency Mapping' }
+        ]
+      },
     ];
 
     const managerItems = [
@@ -215,14 +238,45 @@ function Sidebar({ view, setView, userRole }) {
         </div>
       </div>
 
-      <nav className="flex flex-col gap-2">
+      <nav className="flex flex-col gap-1">
         {getNavItems().map((item) => (
-          <NavItem
-            key={item.id}
-            label={item.label}
-            active={view === item.id}
-            onClick={() => setView(item.id)}
-          />
+          <div key={item.id}>
+            <div 
+              className={`flex items-center justify-between px-3 py-2 rounded cursor-pointer ${view === item.id || (item.children && item.children.some(child => view === child.id)) ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-50'}`}
+              onClick={() => item.children ? toggleItem(item.id) : setView(item.id)}
+            >
+              <div className="flex items-center gap-3">
+                <IconGrid />
+                <span>{item.label}</span>
+              </div>
+              {item.children && (
+                <svg 
+                  className={`w-4 h-4 transition-transform ${expandedItems[item.id] ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              )}
+            </div>
+            {item.children && expandedItems[item.id] && (
+              <div className="ml-8 mt-1 space-y-1">
+                {item.children.map(child => (
+                  <div
+                    key={child.id}
+                    className={`px-3 py-2 text-sm rounded cursor-pointer ${view === child.id ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-50'}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setView(child.id);
+                    }}
+                  >
+                    {child.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         ))}
       </nav>
     </aside>
@@ -1076,6 +1130,10 @@ function CompetencyMatrixApp({ userRole = 'employee' }) {
               competencies={competencies}
             />
           )}
+          {view === "competency-category" && <CompetencyCategoryMaster />}
+          {view === "competency-master" && <CompetencyMaster />}
+          {view === "employee-role-master" && <EmployeeRoleMaster />}
+          {view === "employee-role-competency-mapping" && <EmployeeRoleCompetencyMapping />}
           {view === "role-mapping" && (
             <RoleCompetencyMapping
               roles={roles}
