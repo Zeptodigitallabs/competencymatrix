@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from './store/actions/authActions';
+import Topbar from './components/common/Topbar/Topbar';
 import CompetencyLibraryView from "./CompetencyLibraryView";
 import RoleCompetencyMapping from "./RoleCompetencyMapping";
 import ReportsView from "./ReportsView";
@@ -132,46 +133,6 @@ function IconGrid() {
       <rect x="14" y="14" width="7" height="7" rx="1" />
       <rect x="3" y="14" width="7" height="7" rx="1" />
     </svg>
-  );
-}
-
-function Topbar({ onToggleSidebar }) {
-  const navigate = useNavigate();
-
-  const dispatch = useDispatch();
-
-  const handleLogout = () => {
-    // Dispatch the logout action
-    dispatch(logout())
-  };
-
-  return (
-    <div className="flex items-center justify-between px-4 py-3 border-b bg-white">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onToggleSidebar}
-          className="p-2 rounded hover:bg-gray-100"
-          aria-label="Toggle sidebar"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M3 12h18M3 6h18M3 18h18" />
-          </svg>
-        </button>
-        <h1 className="text-lg font-semibold">Competency Matrix</h1>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="text-sm text-gray-600">Organization: Acme Learning</div>
-        {/* <button className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors">
-          Create Framework
-        </button> */}
-        <button
-          onClick={handleLogout}
-          className="px-3 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
-        >
-          Logout
-        </button>
-      </div>
-    </div>
   );
 }
 
