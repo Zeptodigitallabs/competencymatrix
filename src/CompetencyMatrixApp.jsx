@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
+import { useDispatch, useSelector } from 'react-redux';
 import CompetencyLibraryView from "./CompetencyLibraryView";
 import RoleCompetencyMapping from "./RoleCompetencyMapping";
 import ReportsView from "./ReportsView";
@@ -1031,12 +1032,45 @@ function EmployeeModal({ employee, onClose, onUpdate }) {
 function CompetencyMatrixApp({ userRole = 'employee' }) {
   const [view, setView] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [employees, setEmployees] = useState(SAMPLE_EMPLOYEES);
-  const [competencies, setCompetencies] = useState(SAMPLE_COMPETENCIES);
-  const [roles, setRoles] = useState(SAMPLE_ROLES);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedCompetency, setSelectedCompetency] = useState(null);
   const [cellDetail, setCellDetail] = useState(null);
+  
+  // Get user data from Redux store
+  const { userInfo, loading, error } = useSelector(state => ({
+    userInfo: state.user?.userInfo,
+    loading: state.user?.loading,
+    error: state.user?.error
+  }));
+  const [employees, setEmployees] = useState([]);
+  const [competencies, setCompetencies] = useState([]);
+  const [roles, setRoles] = useState([]);
+  
+  // Initialize data when userInfo is loaded
+  useEffect(() => {
+    if (loading) return; // Don't do anything while loading
+    
+    if (error) {
+      console.error('Error loading user data:', error);
+      // Fallback to sample data on error
+      setEmployees(SAMPLE_EMPLOYEES);
+      setCompetencies(SAMPLE_COMPETENCIES);
+      setRoles(SAMPLE_ROLES);
+      return;
+    }
+
+    if (userInfo) {
+      // Use actual user data if available, otherwise fall back to sample data
+      setEmployees(userInfo.employees || SAMPLE_EMPLOYEES);
+      setCompetencies(userInfo.competencies || SAMPLE_COMPETENCIES);
+      setRoles(userInfo.roles || SAMPLE_ROLES);
+    } else {
+      // Fallback to sample data if no user data is available
+      setEmployees(SAMPLE_EMPLOYEES);
+      setCompetencies(SAMPLE_COMPETENCIES);
+      setRoles(SAMPLE_ROLES);
+    }
+  }, [userInfo, loading, error]);
 
   const handleCellClick = (employee, competency, level) => {
     // open modal for editing employee competency
