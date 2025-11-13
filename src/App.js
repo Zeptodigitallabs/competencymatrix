@@ -3,36 +3,60 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavig
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import storeConfig from './store';
-import CompetencyMatrixApp from './CompetencyMatrixApp';
 import Login from './auth/Login';
 import { AdminRoute, ManagerRoute, EmployeeRoute } from './auth/ProtectedRoute';
 import { loadUser } from './store/actions/authActions';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import AuthService from './services/AuthService/auth.service';
+import { renderRoutes } from './routes';
 
 const { store, persistor } = storeConfig;
 
+// Main App component with routing
+const App = () => (
+  <ErrorBoundary>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </PersistGate>
+    </Provider>
+  </ErrorBoundary>
+);
+
 // Component to handle authenticated routes
 const AppRoutes = () => {
+  // All hooks must be called at the top level
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  
+  // State declarations
+  const [employees, setEmployees] = useState([]);
+  const [competencies, setCompetencies] = useState([]);
+  const [roles, setRoles] = useState([]);
 
   // Get auth state and user info from Redux
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector(state => state.auth);
   const user = useSelector(state => state.user?.userInfo);
+  const userRole = user?.userType || 'Learner';
   
   // Handle navigation after login
   useEffect(() => {
-    if (isAuthenticated && user?.userType) {
-      const userType = user.userType.toLowerCase();
+    if (isAuthenticated && userRole) {
+      const userType = userRole.toLowerCase();
       if (location.pathname === '/' || location.pathname === '/login') {
         navigate(`/${userType}`, { replace: true });
       }
     }
-  }, [isAuthenticated, user, navigate, location.pathname]);
+  }, [isAuthenticated, userRole, navigate, location.pathname]);
 
+  // Logout handler
+  const handleLogout = () => {
+    AuthService.logout();
+  };
 
   // Show loading state while checking authentication
   if (loading) {
@@ -43,113 +67,133 @@ const AppRoutes = () => {
     );
   }
 
-  // Redirect to login if not authenticated
-  if (!isAuthenticated && location.pathname !== '/login') {
-    // Clear any existing auth data
-    AuthService.logout();
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-  
-  // Logout handler
-  const handleLogout = () => {
-    AuthService.logout();
+  // Handlers for competency operations
+  const handleAddCompetency = () => {
+    // Implementation from original CompetencyMatrixApp
+    const newId = `c${competencies.length + 1}`;
+    const newCompetency = {
+      id: newId,
+      name: "New Competency",
+      category: "Technical",
+      levels: 5,
+      linkedRoles: []
+    };
+    setCompetencies(prev => [...prev, newCompetency]);
   };
 
+  const handleUpdateCompetency = (updated) => {
+    setCompetencies(prev =>
+      prev.map(comp => comp.id === updated.id ? updated : comp)
+    );
+  };
 
+  const handleDeleteCompetency = (id) => {
+    if (window.confirm('Are you sure you want to delete this competency?')) {
+      setCompetencies(prev => prev.filter(comp => comp.id !== id));
+    }
+  };
 
+  const handleSaveRoleMapping = (roleId, competencyLevels) => {
+    setRoles(prev =>
+      prev.map(role =>
+        role.id === roleId
+          ? { ...role, competencyLevels: { ...competencyLevels } }
+          : role
+      )
+    );
+  };
 
+  const handleSelectEmployee = (employee, viewName = 'employees') => {
+    // In a real app, you might want to set the selected employee in state
+    // and navigate to the employee details page
+    if (viewName) {
+      navigate(`/${userRole.toLowerCase()}/${viewName}`);
+    }
+  };
+
+  // Render the appropriate routes based on authentication state
   return (
     <Routes>
-      {/* Admin Routes */}
-      <Route path="/institutionadmin">
-        <Route 
-          index 
-          element={
-            <AdminRoute>
-              <Navigate to="dashboard" replace />
-            </AdminRoute>
-          } 
-        />
-        <Route 
-          path=":view" 
-          element={
-            <AdminRoute>
-              <CompetencyMatrixApp userRole="InstitutionAdmin" onLogout={handleLogout} />
-            </AdminRoute>
-          } 
-        />
-      </Route>
-
-      {/* Manager Routes */}
-      <Route path="/manager">
-        <Route 
-          index 
-          element={
-            <ManagerRoute>
-              <Navigate to="dashboard" replace />
-            </ManagerRoute>
-          } 
-        />
-        <Route 
-          path=":view" 
-          element={
-            <ManagerRoute>
-              <CompetencyMatrixApp userRole="Manager" onLogout={handleLogout} />
-            </ManagerRoute>
-          } 
-        />
-      </Route>
-
-      {/* Learner/Employee Routes */}
-      <Route path="/learner">
-        <Route 
-          index 
-          element={
-            <EmployeeRoute>
-              <Navigate to="dashboard" replace />
-            </EmployeeRoute>
-          } 
-        />
-        <Route 
-          path=":view" 
-          element={
-            <EmployeeRoute>
-              <CompetencyMatrixApp userRole="Learner" onLogout={handleLogout} />
-            </EmployeeRoute>
-          } 
-        />
-      </Route>
-
-      {/* Redirect root to login if not authenticated, otherwise to appropriate dashboard */}
-      <Route 
-        path="/" 
-        element={
-          isAuthenticated && user?.userType ? (
-            <Navigate to={`/${user.userType.toLowerCase()}/dashboard`} replace />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      
-      {/* Login route */}
+      {/* Public routes */}
       <Route 
         path="/login" 
         element={
           isAuthenticated ? (
-            <Navigate to={`/${user.userType.toLowerCase()}/dashboard`} replace />
+            <Navigate to={`/${userRole.toLowerCase()}/dashboard`} replace />
           ) : (
             <Login />
           )
         } 
       />
       
+      {/* Protected routes */}
+      <Route 
+        path="/" 
+        element={
+          isAuthenticated ? (
+            <Navigate to={`/${userRole.toLowerCase()}/dashboard`} replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        } 
+      />
+      
+      {/* Role-based routes */}
+      {isAuthenticated && (
+        <Route 
+          path="/*" 
+          element={
+            <>
+              {userRole === 'InstitutionAdmin' && (
+                <AdminRoute>
+                  {renderRoutes({
+                    userRole,
+                    employees,
+                    competencies,
+                    roles,
+                    onSelectEmployee: handleSelectEmployee,
+                    onAddCompetency: handleAddCompetency,
+                    onEditCompetency: handleUpdateCompetency,
+                    onDeleteCompetency: handleDeleteCompetency,
+                    onSaveRoleMapping: handleSaveRoleMapping,
+                    onLogout: handleLogout
+                  })}
+                </AdminRoute>
+              )}
+              {userRole === 'Manager' && (
+                <ManagerRoute>
+                  {renderRoutes({
+                    userRole,
+                    employees,
+                    competencies,
+                    roles,
+                    onSelectEmployee: handleSelectEmployee,
+                    onLogout: handleLogout
+                  })}
+                </ManagerRoute>
+              )}
+              {userRole === 'Learner' && (
+                <EmployeeRoute>
+                  {renderRoutes({
+                    userRole,
+                    employees,
+                    competencies,
+                    onSelectEmployee: handleSelectEmployee,
+                    onLogout: handleLogout
+                  })}
+                </EmployeeRoute>
+              )}
+            </>
+          } 
+        />
+      )}
+      
       {/* Catch-all route */}
       <Route 
         path="*" 
         element={
           isAuthenticated ? (
-            <Navigate to={`/${user.userType.toLowerCase()}/dashboard`} replace />
+            <Navigate to={`/${userRole.toLowerCase()}/dashboard`} replace />
           ) : (
             <Navigate to="/login" replace />
           )
@@ -158,22 +202,5 @@ const AppRoutes = () => {
     </Routes>
   );
 };
-
-// Main App with routing
-const App = () => (
-  <ErrorBoundary>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/*" element={<AppRoutes />} />
-          </Routes>
-        </Router>
-      </PersistGate>
-    </Provider>
-  </ErrorBoundary>
-);
-
 
 export default App;
