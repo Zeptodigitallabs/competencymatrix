@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from './store/actions/authActions';
 import Topbar from './components/common/Topbar/Topbar';
+import Sidebar from './components/common/Sidebar/Sidebar';
 import CompetencyLibraryView from "./CompetencyLibraryView";
 import RoleCompetencyMapping from "./RoleCompetencyMapping";
 import ReportsView from "./ReportsView";
@@ -133,128 +134,6 @@ function IconGrid() {
       <rect x="14" y="14" width="7" height="7" rx="1" />
       <rect x="3" y="14" width="7" height="7" rx="1" />
     </svg>
-  );
-}
-
-function Sidebar({ view, setView, userRole }) {
-  const [expandedItems, setExpandedItems] = React.useState({});
-
-  const toggleItem = (itemId) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [itemId]: !prev[itemId]
-    }));
-  };
-
-  // Navigation items based on user role
-  const getNavItems = () => {
-    const commonItems = [
-      { id: 'dashboard', label: 'Dashboard' },
-    ];
-
-    const adminItems = [
-      { id: 'competency-library', label: 'Competency Management' },
-      { id: 'role-mapping', label: 'Role Mappings' },
-      { id: 'reports', label: 'Reports & Analytics' },
-      { 
-        id: 'masters', 
-        label: 'Masters',
-        children: [
-          { id: 'competency-category', label: 'Competency Categories' },
-          { id: 'competency-master', label: 'Competency Master' },
-          { id: 'employee-role-master', label: 'Employee Role Master' },
-          { id: 'employee-role-competency-mapping', label: 'Role Competency Mapping' }
-        ]
-      },
-    ];
-
-    const managerItems = [
-      { id: 'team-matrix', label: 'Team Competency Matrix' },
-      { id: 'assessments', label: 'Team Assessments' },
-      { id: 'learning-paths', label: 'Learning Paths' },
-    ];
-
-    const employeeItems = [
-      { id: 'my-learning', label: 'My Learning' },
-      { id: 'my-assessments', label: 'My Assessments' },
-    ];
-
-    let items = [...commonItems];
-
-    if (userRole === 'InstitutionAdmin') {
-      items = [...items, ...adminItems];
-    } else if (userRole === 'Manager') {
-      items = [...items, ...managerItems];
-    } else {
-      items = [...items, ...employeeItems];
-    }
-
-    return items;
-  };
-  return (
-    <aside className="w-64 border-r bg-white p-4">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="h-10 w-10 bg-indigo-500 rounded flex items-center justify-center text-white font-bold">AL</div>
-        <div>
-          <div className="font-semibold">Acme Learning</div>
-          <div className="text-xs text-gray-500">Competency Module</div>
-        </div>
-      </div>
-
-      <nav className="flex flex-col gap-1">
-        {getNavItems().map((item) => (
-          <div key={item.id}>
-            <div 
-              className={`flex items-center justify-between px-3 py-2 rounded cursor-pointer ${view === item.id || (item.children && item.children.some(child => view === child.id)) ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-50'}`}
-              onClick={() => item.children ? toggleItem(item.id) : setView(item.id)}
-            >
-              <div className="flex items-center gap-3">
-                <IconGrid />
-                <span>{item.label}</span>
-              </div>
-              {item.children && (
-                <svg 
-                  className={`w-4 h-4 transition-transform ${expandedItems[item.id] ? 'rotate-180' : ''}`} 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              )}
-            </div>
-            {item.children && expandedItems[item.id] && (
-              <div className="ml-8 mt-1 space-y-1">
-                {item.children.map(child => (
-                  <div
-                    key={child.id}
-                    className={`px-3 py-2 text-sm rounded cursor-pointer ${view === child.id ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-50'}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setView(child.id);
-                    }}
-                  >
-                    {child.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </nav>
-    </aside>
-  );
-}
-
-function NavItem({ label, active, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-3 px-3 py-2 rounded ${active ? "bg-indigo-50 text-indigo-700" : "hover:bg-gray-50"}`}
-    >
-      <IconGrid />
-      <span>{label}</span>
-    </button>
   );
 }
 
