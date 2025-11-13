@@ -1,11 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CompetencyModal from './CompetencyModal';
+import CompetencyService from '../../services/CompetencyService';
 
-function CompetencyLibraryView({ competencies = [], onAddCompetency, onEditCompetency, onDeleteCompetency }) {
+function CompetencyLibraryView() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCompetency, setEditingCompetency] = useState(null);
+  const [competencies, setCompetencies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch competencies on component mount
+  useEffect(() => {
+    fetchCompetencies();
+  }, []);
+
+  const fetchCompetencies = async () => {
+    try {
+      setIsLoading(true);
+      const data = await CompetencyService.getCompetencies();
+      // Map the API response to match your component's expected format
+      const formattedCompetencies = data.map(comp => ({
+        id: comp.competencyId,
+        name: comp.competencyName,
+        category: comp.compCategoryId, // We'll map this to category name later
+        levels: comp.maxLevel, // Using maxLevel as the number of levels
+        minLevel: comp.minLevel,
+        isActive: comp.isActive,
+        // We'll need to fetch category names separately and map them
+        linkedRoles: [] // This would come from a different API endpoint
+      }));
+      setCompetencies(formattedCompetencies);
+    } catch (err) {
+      setError('Failed to load competencies');
+      console.error('Error fetching competencies:', err);
+      // Optionally show a toast/notification to the user
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Handle add new competency
   const handleAddClick = () => {
@@ -23,20 +57,50 @@ function CompetencyLibraryView({ competencies = [], onAddCompetency, onEditCompe
   };
 
   // Handle save competency
-  const handleSave = (competency) => {
-    if (competency.id) {
-      onEditCompetency(competency);
-    } else {
-      onAddCompetency(competency);
+  const handleSave = async (competency) => {
+    try {
+      setIsLoading(true);
+      if (competency.id) {
+        // Update existing competency
+        const updatedCompetency = await CompetencyService.saveCompetency(competency);
+        setCompetencies(prev => 
+          prev.map(comp => comp.id === updatedCompetency.id ? updatedCompetency : comp)
+        );
+      } else {
+        // Add new competency
+        const newCompetency = await CompetencyService.saveCompetency(competency);
+        setCompetencies(prev => [...prev, newCompetency]);
+      }
+      setIsModalOpen(false);
+    } catch (err) {
+      setError('Failed to save competency');
+      console.error('Error saving competency:', err);
+      throw err; // Re-throw to handle in the modal
+    } finally {
+      setIsLoading(false);
     }
-    setIsModalOpen(false);
   };
 
   // Handle delete competency
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this competency?')) {
-      onDeleteCompetency(id);
-      setIsModalOpen(false);
+      try {
+        setIsLoading(true);
+        // Call delete API
+        await CompetencyService.deleteCompetency(id);
+        // Remove the deleted competency from the local state
+        setCompetencies(prev => prev.filter(comp => comp.id !== id));
+        
+        // Show success message or notification
+        alert('Competency deleted successfully');
+      } catch (err) {
+        setError('Failed to delete competency');
+        console.error('Error deleting competency:', err);
+        // Show error message to the user
+        alert('Failed to delete competency. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -45,10 +109,31 @@ function CompetencyLibraryView({ competencies = [], onAddCompetency, onEditCompe
 
   // Filter competencies based on search and category
   const filteredCompetencies = competencies.filter(comp => {
-    const matchesSearch = comp.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || comp.category === selectedCategory;
+    const name = comp?.name || '';
+    const category = comp?.category || '';
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    const matchesSearch = name.toLowerCase().includes(searchTermLower);
+    const matchesCategory = selectedCategory === 'All' || category === selectedCategory;
+    
     return matchesSearch && matchesCategory;
   });
+
+  if (isLoading && competencies.length === 0) {
+    return (
+      <div className="flex items-center justify-center p-6">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-red-600">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">

@@ -5,7 +5,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import storeConfig from './store';
 import Login from './auth/Login';
 import { AdminRoute, ManagerRoute, EmployeeRoute } from './auth/ProtectedRoute';
-import { loadUser } from './store/actions/authActions';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import AuthService from './services/AuthService/auth.service';
 import { renderRoutes } from './routes';
@@ -34,7 +33,6 @@ const AppRoutes = () => {
   
   // State declarations
   const [employees, setEmployees] = useState([]);
-  const [competencies, setCompetencies] = useState([]);
   const [roles, setRoles] = useState([]);
 
   // Get auth state and user info from Redux
@@ -75,32 +73,6 @@ const AppRoutes = () => {
       </div>
     );
   }
-
-  // Handlers for competency operations
-  const handleAddCompetency = () => {
-    // Implementation from original CompetencyMatrixApp
-    const newId = `c${competencies.length + 1}`;
-    const newCompetency = {
-      id: newId,
-      name: "New Competency",
-      category: "Technical",
-      levels: 5,
-      linkedRoles: []
-    };
-    setCompetencies(prev => [...prev, newCompetency]);
-  };
-
-  const handleUpdateCompetency = (updated) => {
-    setCompetencies(prev =>
-      prev.map(comp => comp.id === updated.id ? updated : comp)
-    );
-  };
-
-  const handleDeleteCompetency = (id) => {
-    if (window.confirm('Are you sure you want to delete this competency?')) {
-      setCompetencies(prev => prev.filter(comp => comp.id !== id));
-    }
-  };
 
   const handleSaveRoleMapping = (roleId, competencyLevels) => {
     setRoles(prev =>
@@ -158,12 +130,8 @@ const AppRoutes = () => {
                   {renderRoutes({
                     userRole,
                     employees,
-                    competencies,
                     roles,
                     onSelectEmployee: handleSelectEmployee,
-                    onAddCompetency: handleAddCompetency,
-                    onEditCompetency: handleUpdateCompetency,
-                    onDeleteCompetency: handleDeleteCompetency,
                     onSaveRoleMapping: handleSaveRoleMapping,
                     onLogout: handleLogout
                   })}
@@ -174,7 +142,6 @@ const AppRoutes = () => {
                   {renderRoutes({
                     userRole,
                     employees,
-                    competencies,
                     roles,
                     onSelectEmployee: handleSelectEmployee,
                     onLogout: handleLogout
@@ -186,7 +153,6 @@ const AppRoutes = () => {
                   {renderRoutes({
                     userRole,
                     employees,
-                    competencies,
                     onSelectEmployee: handleSelectEmployee,
                     onLogout: handleLogout
                   })}

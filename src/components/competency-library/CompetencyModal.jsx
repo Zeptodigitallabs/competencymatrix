@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CompetencyService from '../../services/CompetencyService';
 
 const CompetencyModal = ({ 
   competency, 
@@ -8,16 +9,60 @@ const CompetencyModal = ({
 }) => {
   const [localCompetency, setLocalCompetency] = useState(competency || {
     name: '',
-    category: 'Technical',
-    levels: 5,
+    category: '',
+    levels: 0,
     linkedRoles: []
   });
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await CompetencyService.getCompetencyCategories();
+       
+       console.log(response);
+       
+        // Handle different possible response structures
+        const categoriesData = Array.isArray(response) 
+          ? response 
+          : (response.data || response.categories || []);
+          
+        // Ensure we have an array of objects with at least id and name
+        const formattedCategories = categoriesData.map(cat => ({
+          id: cat.compCategoryId,
+          name: cat.categoryName,
+          value: cat.categoryName
+        }));
+        
+        setCategories(formattedCategories);
+        
+        // If this is a new competency, set the first category as default
+        if (!competency?.id && formattedCategories.length > 0) {
+          setLocalCompetency(prev => ({
+            ...prev,
+            category: formattedCategories[0].value
+          }));
+        }
+      } catch (err) {
+        setError('Failed to load categories');
+        console.error('Error fetching categories:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [competency]);
 
   useEffect(() => {
     setLocalCompetency(competency || {
       name: '',
-      category: 'Technical',
-      levels: 5,
+      category: '',
+      levels: 0,
       linkedRoles: []
     });
   }, [competency]);
@@ -68,17 +113,25 @@ const CompetencyModal = ({
           
           <div>
             <label className="block text-sm font-medium text-gray-700">Category</label>
-            <select
-              value={localCompetency.category}
-              onChange={(e) => setLocalCompetency(prev => ({ ...prev, category: e.target.value }))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            >
-              <option value="Technical">Technical</option>
-              <option value="Behavioral">Behavioral</option>
-              <option value="Leadership">Leadership</option>
-              <option value="Domain">Domain</option>
-              <option value="Process">Process</option>
-            </select>
+            {loading ? (
+              <div className="mt-1 h-10 bg-gray-100 rounded-md animate-pulse"></div>
+            ) : error ? (
+              <p className="text-red-500 text-sm mt-1">{error}</p>
+            ) : (
+              <select
+                value={localCompetency.category}
+                onChange={(e) => setLocalCompetency(prev => ({ ...prev, category: e.target.value }))}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                required
+                disabled={loading}
+              >
+                {categories.map((category) => (
+                  <option key={category.id} value={category.value}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
           
           <div>
