@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from './store/actions/authActions';
 import Topbar from './components/common/Topbar/Topbar';
 import Sidebar from './components/common/Sidebar/Sidebar';
+import DashboardView from './components/dashboards/DashboardView';
+import ManagerDashboard from './components/dashboards/ManagerDashboard';
+import EmployeeDashboard from './components/dashboards/EmployeeDashboard';
 import CompetencyLibraryView from "./CompetencyLibraryView";
 import RoleCompetencyMapping from "./RoleCompetencyMapping";
 import ReportsView from "./ReportsView";
@@ -137,15 +139,6 @@ function IconGrid() {
   );
 }
 
-function KPI({ title, value, sub }) {
-  return (
-    <div className="p-3 bg-white rounded shadow-sm">
-      <div className="text-xs text-gray-500">{title}</div>
-      <div className="text-2xl font-semibold">{value}</div>
-      {sub && <div className="text-sm text-gray-400">{sub}</div>}
-    </div>
-  );
-}
 
 function TeamCompetencyMatrix({ employees, competencies }) {
   // Calculate average competency levels for the team
@@ -392,419 +385,6 @@ function TeamLearningPaths({ employees }) {
   );
 }
 
-function DashboardView({ employees, competencies, onSelectEmployee }) {
-  // compute average competency gap (simple example)
-  const avg = Math.round(
-    employees.reduce((acc, e) => {
-      const vals = Object.values(e.competencies);
-      const target = 4; // assume role target
-      const gaps = vals.reduce((s, v) => s + Math.max(0, target - v), 0) / vals.length;
-      return acc + gaps;
-    }, 0) / employees.length
-  );
-
-  return (
-    <div className="p-6 space-y-6">
-      <div className="grid grid-cols-3 gap-4">
-        <KPI title="Avg. Gap (per emp)" value={`${avg}`} sub="Lower is better" />
-        <KPI title="Employees" value={employees.length} />
-        <KPI title="Competencies" value={competencies.length} />
-      </div>
-
-      <div className="bg-white p-4 rounded shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold">Team Snapshot</h3>
-          <div className="text-sm text-gray-500">Updated: today</div>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          {employees.map((e) => (
-            <div key={e.id} className="p-3 border rounded hover:shadow cursor-pointer" onClick={() => onSelectEmployee(e)}>
-              <div className="font-semibold">{e.name}</div>
-              <div className="text-xs text-gray-500">{e.role} — {e.dept}</div>
-              <div className="mt-2 text-sm">Top: {Object.entries(e.competencies).sort((a, b) => b[1] - a[1])[0][0]}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ManagerDashboard({ employees, competencies, onSelectEmployee }) {
-  // Calculate team statistics
-  const teamStats = employees.reduce((acc, emp) => {
-    const levels = Object.values(emp.competencies || {});
-    const avgLevel = levels.length ? levels.reduce((a, b) => a + b, 0) / levels.length : 0;
-
-    acc.totalCompetencies += levels.length;
-    acc.totalProficiency += avgLevel;
-
-    // Count employees at different proficiency levels
-    if (avgLevel >= 4) acc.highProficiency++;
-    else if (avgLevel >= 2.5) acc.mediumProficiency++;
-    else acc.lowProficiency++;
-
-    return acc;
-  }, {
-    totalCompetencies: 0,
-    totalProficiency: 0,
-    highProficiency: 0,
-    mediumProficiency: 0,
-    lowProficiency: 0
-  });
-
-  const avgProficiency = employees.length > 0
-    ? (teamStats.totalProficiency / employees.length).toFixed(1)
-    : 0;
-
-  return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">Team Competency Dashboard</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <KPI title="Team Members" value={employees.length} sub="Total employees" />
-        <KPI title="Avg. Proficiency" value={avgProficiency} sub="Out of 5" />
-        <KPI title="Total Skills Tracked" value={teamStats.totalCompetencies} sub="Across team" />
-      </div>
-
-      <div className="space-y-6">
-        {/* <TeamCompetencyMatrix employees={employees} competencies={competencies} /> */}
-
-        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TeamAssessments employees={employees} />
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold mb-4">Proficiency Distribution</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-green-700">{teamStats.highProficiency}</div>
-                <div className="text-sm text-green-600">High Proficiency</div>
-                <div className="text-xs text-green-500">4.0+ rating</div>
-              </div>
-              <div className="bg-yellow-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-yellow-700">{teamStats.mediumProficiency}</div>
-                <div className="text-sm text-yellow-600">Medium Proficiency</div>
-                <div className="text-xs text-yellow-500">2.5 - 3.9 rating</div>
-              </div>
-              <div className="bg-red-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-red-700">{teamStats.lowProficiency}</div>
-                <div className="text-sm text-red-600">Needs Development</div>
-                <div className="text-xs text-red-500">Below 2.5 rating</div>
-              </div>
-            </div>
-          </div>
-
-          <TeamLearningPaths employees={employees} />
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Team Members</h3>
-              <div className="flex items-center gap-3">
-                <div className="text-sm text-gray-500">Click to view details</div>
-                <button className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                  Add Team Member
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {employees.map((emp) => (
-                <div
-                  key={emp.id}
-                  className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => onSelectEmployee(emp)}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-semibold">{emp.name}</div>
-                      <div className="text-sm text-gray-500">{emp.role}</div>
-                    </div>
-                    <div className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
-                      {emp.dept}
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <div className="text-xs text-gray-500 mb-1">Top Skills:</div>
-                    <div className="flex flex-wrap gap-1">
-                      {Object.entries(emp.competencies)
-                        .sort((a, b) => b[1] - a[1])
-                        .slice(0, 3)
-                        .map(([skill, level]) => (
-                          <span key={skill} className="text-xs bg-gray-100 px-2 py-1 rounded">
-                            {skill}: {level}/5
-                          </span>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>*/}
-      </div>
-    </div>
-  );
-}
-
-function EmployeeDashboard({ employees = [], competencies = [], onSelectEmployee = () => {} }) {
-  // For demo, using the first employee as the current user
-  const currentUser = employees?.[0] || { 
-    name: 'User', 
-    role: 'Employee', 
-    dept: 'Department',
-    competencies: {} 
-  };
-
-  // Add fallback empty object for competencies
-  const userCompetencies = currentUser?.competencies || {};
-
-  const topSkills = Object.entries(userCompetencies)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3);
-
-  const skillGaps = Object.entries(userCompetencies)
-    .filter((_, level) => level < 3)
-    .sort((a, b) => a[1] - b[1]);
-
-  // If no user data is available yet, show a loading state
-  if (!employees.length) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">My Competency Profile</h2>
-        <div className="text-sm text-gray-500">Last updated: {new Date().toLocaleDateString()}</div>
-      </div>
-
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center text-2xl font-bold text-indigo-600">
-            {currentUser.name.split(' ').map(n => n[0]).join('')}
-          </div>
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold">{currentUser.name}</h3>
-            <div className="text-gray-600">{currentUser.role} • {currentUser.dept}</div>
-            <div className="mt-2 text-sm text-gray-500">
-              Member since {new Date().getFullYear() - Math.floor(Math.random() * 5) + 2018}
-            </div>
-          </div>
-          <button
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-            onClick={() => onSelectEmployee(currentUser)}
-          >
-            View Full Profile
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="font-semibold mb-4">My Top Skills</h3>
-          <div className="space-y-4">
-            {topSkills.map(([skill, level]) => (
-              <div key={skill}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>{skill}</span>
-                  <span className="font-medium">{level}/5</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{ width: `${(level / 5) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="font-semibold mb-4">Skill Gaps</h3>
-          {skillGaps.length > 0 ? (
-            <div className="space-y-3">
-              {skillGaps.map(([skill, level]) => (
-                <div key={skill} className="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                  <div className="font-medium text-yellow-800">{skill}</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="text-xs text-yellow-600">Current: {level}/5</div>
-                    <div className="text-xs text-gray-400">•</div>
-                    <div className="text-xs text-gray-500">Target: 3.0+</div>
-                  </div>
-                  <button className="mt-2 text-xs text-blue-600 hover:underline">
-                    View learning resources
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-4 text-gray-500">
-              No critical skill gaps identified. Keep up the good work!
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="font-semibold mb-4">Recommended Learning Paths</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {['Advanced JavaScript', 'React Performance', 'Team Leadership'].map((course) => (
-            <div key={course} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-              <div className="font-medium">{course}</div>
-              <div className="text-sm text-gray-500 mt-1">
-                {Math.floor(Math.random() * 5) + 1} hours • {['Beginner', 'Intermediate', 'Advanced'][Math.floor(Math.random() * 3)]}
-              </div>
-              <button className="mt-3 text-sm text-blue-600 hover:underline">
-                Start Learning →
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">My Competency Profile</h2>
-        <div className="text-sm text-gray-500">Last updated: {new Date().toLocaleDateString()}</div>
-      </div>
-
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center text-2xl font-bold text-indigo-600">
-            {currentUser.name.split(' ').map(n => n[0]).join('')}
-          </div>
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold">{currentUser.name}</h3>
-            <div className="text-gray-600">{currentUser.role} • {currentUser.dept}</div>
-            <div className="mt-2 text-sm text-gray-500">
-              Member since {new Date().getFullYear() - Math.floor(Math.random() * 5) + 2018}
-            </div>
-          </div>
-          <button
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-            onClick={() => onSelectEmployee(currentUser)}
-          >
-            View Full Profile
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="font-semibold mb-4">My Top Skills</h3>
-          <div className="space-y-4">
-            {topSkills.map(([skill, level]) => (
-              <div key={skill}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>{skill}</span>
-                  <span className="font-medium">{level}/5</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{ width: `${(level / 5) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="font-semibold mb-4">Skill Gaps</h3>
-          {skillGaps.length > 0 ? (
-            <div className="space-y-3">
-              {skillGaps.map(([skill, level]) => (
-                <div key={skill} className="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                  <div className="font-medium text-yellow-800">{skill}</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="text-xs text-yellow-600">Current: {level}/5</div>
-                    <div className="text-xs text-gray-400">•</div>
-                    <div className="text-xs text-gray-500">Target: 3.0+</div>
-                  </div>
-                  <button className="mt-2 text-xs text-blue-600 hover:underline">
-                    View learning resources
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-4 text-gray-500">
-              No critical skill gaps identified. Keep up the good work!
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="font-semibold mb-4">Recommended Learning Paths</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {['Advanced JavaScript', 'React Performance', 'Team Leadership'].map((course) => (
-            <div key={course} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-              <div className="font-medium">{course}</div>
-              <div className="text-sm text-gray-500 mt-1">
-                {Math.floor(Math.random() * 5) + 1} hours • {['Beginner', 'Intermediate', 'Advanced'][Math.floor(Math.random() * 3)]}
-              </div>
-              <button className="mt-3 text-sm text-blue-600 hover:underline">
-                Start Learning →
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MatrixView({ employees, competencies, onCellClick }) {
-  return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Competency Matrix</h2>
-        <div className="flex items-center gap-2">
-          <input className="border px-2 py-1 rounded" placeholder="Search employee" />
-          <button className="px-3 py-1 bg-indigo-600 text-white rounded">Export</button>
-        </div>
-      </div>
-
-      <div className="overflow-auto bg-white rounded shadow-sm">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="py-3 px-3 text-left">Employee</th>
-              {competencies.map((c) => (
-                <th key={c.id} className="py-3 px-3 text-left">{c.name}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {employees.map((e) => (
-              <tr key={e.id} className="border-t hover:bg-gray-50">
-                <td className="py-3 px-3">{e.name}<div className="text-xs text-gray-400">{e.role}</div></td>
-                {competencies.map((c) => {
-                  const level = e.competencies[c.id] ?? 0;
-                  const color = level >= 4 ? "bg-green-100" : level >= 3 ? "bg-yellow-100" : "bg-red-100";
-                  return (
-                    <td key={c.id} className="py-3 px-3">
-                      <button onClick={() => onCellClick(e, c, level)} className={`px-2 py-1 rounded ${color} border`}>{level}</button>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
 function EmployeesView({ employees, onSelectEmployee }) {
   return (
     <div className="p-6">
@@ -835,8 +415,8 @@ function EmployeeModal({ employee, onClose, onUpdate }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-white rounded w-full max-w-2xl p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
         <div className="flex items-start justify-between">
           <h3 className="text-lg font-semibold">{employee.name} — Competency Profile</h3>
           <button onClick={onClose} className="text-gray-500">Close</button>
@@ -985,7 +565,14 @@ function CompetencyMatrixApp({ userRole = 'Learner' }) {
 
         <main className="flex-1 overflow-auto">
           {view === "dashboard" && userRole === 'InstitutionAdmin' && (
-            <DashboardView employees={employees} competencies={competencies} onSelectEmployee={(e) => { setSelectedEmployee(e); setView('employees'); }} />
+            <DashboardView 
+              employees={employees} 
+              competencies={competencies} 
+              onSelectEmployee={(e) => { 
+                setSelectedEmployee(e); 
+                setView('employees'); 
+              }} 
+            />
           )}
           {view === "dashboard" && userRole === 'Manager' && (
             <ManagerDashboard
@@ -1003,9 +590,6 @@ function CompetencyMatrixApp({ userRole = 'Learner' }) {
               competencies={competencies}
               onSelectEmployee={(e) => setSelectedEmployee(e)}
             />
-          )}
-          {view === "matrix" && (
-            <MatrixView employees={employees} competencies={competencies} onCellClick={handleCellClick} />
           )}
           {view === "employees" && (
             <EmployeesView employees={employees} onSelectEmployee={(e) => setSelectedEmployee(e)} />
