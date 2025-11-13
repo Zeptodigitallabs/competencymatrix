@@ -1,8 +1,44 @@
 import React, { useState } from 'react';
+import CompetencyModal from './CompetencyModal';
 
-function CompetencyLibraryView({ competencies, onAddCompetency, onEditCompetency, onDeleteCompetency }) {
+function CompetencyLibraryView({ competencies = [], onAddCompetency, onEditCompetency, onDeleteCompetency }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCompetency, setEditingCompetency] = useState(null);
+
+  // Handle add new competency
+  const handleAddClick = () => {
+    console.log('Add button clicked');
+    setEditingCompetency(null);
+    console.log('Setting isModalOpen to true');
+    setIsModalOpen(true);
+    console.log('isModalOpen should now be true');
+  };
+
+  // Handle edit competency
+  const handleEditClick = (competency) => {
+    setEditingCompetency(competency);
+    setIsModalOpen(true);
+  };
+
+  // Handle save competency
+  const handleSave = (competency) => {
+    if (competency.id) {
+      onEditCompetency(competency);
+    } else {
+      onAddCompetency(competency);
+    }
+    setIsModalOpen(false);
+  };
+
+  // Handle delete competency
+  const handleDelete = (id) => {
+    if (window.confirm('Are you sure you want to delete this competency?')) {
+      onDeleteCompetency(id);
+      setIsModalOpen(false);
+    }
+  };
 
   // Get unique categories for filter
   const categories = ['All', ...new Set(competencies.map(comp => comp.category))];
@@ -20,7 +56,7 @@ function CompetencyLibraryView({ competencies, onAddCompetency, onEditCompetency
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Competency Library</h2>
         <button
-          onClick={onAddCompetency}
+          onClick={handleAddClick}
           className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
         >
           + Add Competency
@@ -102,15 +138,15 @@ function CompetencyLibraryView({ competencies, onAddCompetency, onEditCompetency
                         {competency.linkedRoles?.join(', ') || 'None'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
-                        onClick={() => onEditCompetency(competency)}
+                        onClick={() => handleEditClick(competency)}
                         className="text-indigo-600 hover:text-indigo-900 mr-4"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => onDeleteCompetency(competency.id)}
+                        onClick={() => handleDelete(competency.id)}
                         className="text-red-600 hover:text-red-900"
                       >
                         Delete
@@ -129,6 +165,19 @@ function CompetencyLibraryView({ competencies, onAddCompetency, onEditCompetency
           </table>
         </div>
       </div>
+
+      {/* Competency Modal */}
+      {isModalOpen && (
+        <CompetencyModal
+          competency={editingCompetency}
+          onClose={() => {
+            console.log('Closing modal');
+            setIsModalOpen(false);
+          }}
+          onSave={handleSave}
+          onDelete={editingCompetency?.id ? handleDelete : null}
+        />
+      )}
     </div>
   );
 }

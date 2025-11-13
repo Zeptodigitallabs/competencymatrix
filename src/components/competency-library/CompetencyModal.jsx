@@ -14,16 +14,12 @@ const CompetencyModal = ({
   });
 
   useEffect(() => {
-    if (competency) {
-      setLocalCompetency(competency);
-    } else {
-      setLocalCompetency({
-        name: '',
-        category: 'Technical',
-        levels: 5,
-        linkedRoles: []
-      });
-    }
+    setLocalCompetency(competency || {
+      name: '',
+      category: 'Technical',
+      levels: 5,
+      linkedRoles: []
+    });
   }, [competency]);
 
   const handleSubmit = (e) => {
@@ -39,14 +35,13 @@ const CompetencyModal = ({
     }));
   };
 
-  if (!competency) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-lg font-semibold">
-            {competency.id ? 'Edit Competency' : 'Add New Competency'}
+            {localCompetency.id ? 'Edit Competency' : 'Add New Competency'}
           </h3>
           <button 
             onClick={onClose}
@@ -118,10 +113,10 @@ const CompetencyModal = ({
           
           <div className="pt-4 flex justify-between">
             <div>
-              {competency.id && (
+              {localCompetency.id && onDelete && (
                 <button
                   type="button"
-                  onClick={() => onDelete && onDelete(competency.id)}
+                  onClick={() => onDelete(localCompetency.id)}
                   className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
                   Delete
@@ -140,7 +135,7 @@ const CompetencyModal = ({
                 type="submit"
                 className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                {competency.id ? 'Update' : 'Create'} Competency
+                {localCompetency.id ? 'Update' : 'Create'} Competency
               </button>
             </div>
           </div>
