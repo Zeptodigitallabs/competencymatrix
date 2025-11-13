@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./auth/AuthContext";
 import { useDispatch, useSelector } from 'react-redux';
 import CompetencyLibraryView from "./CompetencyLibraryView";
 import RoleCompetencyMapping from "./RoleCompetencyMapping";
@@ -136,11 +135,9 @@ function IconGrid() {
 }
 
 function Topbar({ onToggleSidebar }) {
-  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
     navigate('/login');
   };
 
