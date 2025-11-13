@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -14,39 +14,60 @@ const { store, persistor } = storeConfig;
 // Component to handle authenticated routes
 const AppRoutes = () => {
   const location = useLocation();
+  const [loading, setLoading] = useState(false);
   
   // Get auth state and user info from Redux
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector(state => state.auth);
   const user = useSelector(state => state.user?.userInfo);
   
-  console.log('Auth state:', { isAuthenticated, user });
-  
   // Load user on initial render
   // useEffect(() => {
-  //   dispatch(loadUser(true)); // Pass true to indicate initial load
+  //   const initializeAuth = async () => {
+  //     try {
+  //       setLoading(true);
+  //       await dispatch(loadUser(true)); // Pass true to indicate initial load
+  //     } catch (error) {
+  //       console.error('Error loading user:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   initializeAuth();
   // }, [dispatch]);
+  
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
   
   // Redirect to login if not authenticated
   if (!isAuthenticated && location.pathname !== '/login') {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
-  // If on login page and already authenticated, redirect to home
-  if (isAuthenticated && location.pathname === '/login') {
-    return <Navigate to="/" replace />;
+  // If on login page and already authenticated, redirect to dashboard
+  if (isAuthenticated && (location.pathname === '/' || location.pathname === '/login')) {
+    const userType = user?.userType?.toLowerCase() || 'learner';
+    return <Navigate to={`/${userType}`} replace />;
   }
 
-  // Determine user role with a default of 'employee' if not available
-  const userRole = user?.userType || 'Learner';
+  // Determine user role with a default of 'learner' if not available
+  const userRole = user?.userType?.toLowerCase() || 'learner';
+  
   
   return (
     <Routes>
       {/* Admin Routes */}
       <Route
-        path="/admin/*"
+        path="/institutionadmin/*"
         element={
-          <AdminRoute>
+          <AdminRoute userRole={userRole}>
             <CompetencyMatrixApp userRole={userRole} />
           </AdminRoute>
         }
@@ -56,17 +77,17 @@ const AppRoutes = () => {
       <Route
         path="/manager/*"
         element={
-          <ManagerRoute>
+          <ManagerRoute userRole={userRole}>
             <CompetencyMatrixApp userRole={userRole} />
           </ManagerRoute>
         }
       />
       
-      {/* Employee Routes */}
+      {/* Learner/Employee Routes */}
       <Route
-        path="/employee/*"
+        path="/learner/*"
         element={
-          <EmployeeRoute>
+          <EmployeeRoute userRole={userRole}>
             <CompetencyMatrixApp userRole={userRole} />
           </EmployeeRoute>
         }

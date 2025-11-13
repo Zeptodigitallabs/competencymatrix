@@ -3,7 +3,8 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const { isAuthenticated, user, loading } = useSelector(state => state.auth);
+  const { isAuthenticated, loading } = useSelector(state => state.auth);
+  const user = useSelector(state => state.user?.userInfo);
   const location = useLocation();
 
   if (loading) {
@@ -17,8 +18,10 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   }
 
   // Check if user has required role
-  if (allowedRoles.length > 0 && (!user || !allowedRoles.includes(user.role))) {
-    // User doesn't have required role, redirect to home or show unauthorized
+  // Update role checks to be case-insensitive
+  if (allowedRoles.length > 0 && (!user || !allowedRoles.some(role =>
+    role.toLowerCase() === user?.userType?.toLowerCase()
+  ))) {
     return <Navigate to="/unauthorized" replace />;
   }
 
@@ -27,19 +30,19 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
 // Role-specific route components
 export const AdminRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['admin']}>
+  <ProtectedRoute allowedRoles={['InstitutionAdmin']}>
     {children}
   </ProtectedRoute>
 );
 
 export const ManagerRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+  <ProtectedRoute allowedRoles={['InstitutionAdmin', 'Manager']}>
     {children}
   </ProtectedRoute>
 );
 
 export const EmployeeRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['admin', 'manager', 'employee']}>
+  <ProtectedRoute allowedRoles={['InstitutionAdmin', 'Manager', 'Learner']}>
     {children}
   </ProtectedRoute>
 );
