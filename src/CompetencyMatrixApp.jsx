@@ -219,9 +219,9 @@ function Sidebar({ view, setView, userRole }) {
 
     let items = [...commonItems];
 
-    if (userRole === 'admin') {
+    if (userRole === 'InstitutionAdmin') {
       items = [...items, ...adminItems];
-    } else if (userRole === 'manager') {
+    } else if (userRole === 'Manager') {
       items = [...items, ...managerItems];
     } else {
       items = [...items, ...employeeItems];
@@ -1029,7 +1029,7 @@ function EmployeeModal({ employee, onClose, onUpdate }) {
   );
 }
 
-function CompetencyMatrixApp({ userRole = 'employee' }) {
+function CompetencyMatrixApp({ userRole = 'Learner' }) {
   const [view, setView] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -1126,10 +1126,10 @@ function CompetencyMatrixApp({ userRole = 'employee' }) {
         <Topbar onToggleSidebar={() => setSidebarOpen((s) => !s)} />
 
         <main className="flex-1 overflow-auto">
-          {view === "dashboard" && userRole === 'admin' && (
+          {view === "dashboard" && userRole === 'InstitutionAdmin' && (
             <DashboardView employees={employees} competencies={competencies} onSelectEmployee={(e) => { setSelectedEmployee(e); setView('employees'); }} />
           )}
-          {view === "dashboard" && userRole === 'manager' && (
+          {view === "dashboard" && userRole === 'Manager' && (
             <ManagerDashboard
               employees={employees}
               competencies={competencies}
@@ -1139,7 +1139,7 @@ function CompetencyMatrixApp({ userRole = 'employee' }) {
               }}
             />
           )}
-          {view === "dashboard" && userRole === 'employee' && (
+          {view === "dashboard" && userRole === 'Learner' && (
             <EmployeeDashboard
               employees={employees}
               competencies={competencies}

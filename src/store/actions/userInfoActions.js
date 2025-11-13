@@ -7,10 +7,13 @@ export const fetchUserInfoStart = () => ({
   type: actionTypes.FETCH_USERINFO_START
 });
 
-export const setUserInfo = (userInfo) => ({
-  type: actionTypes.SET_USERINFO,
-  payload: userInfo
-});
+export const setUserInfo = (userInfo) => {
+  console.log("userInfo",userInfo);
+  return {
+    type: actionTypes.SET_USERINFO,
+    payload: userInfo
+  };
+};
 
 export const fetchUserInfoFailed = (error) => ({
   type: actionTypes.FETCH_USERINFO_FAILED,

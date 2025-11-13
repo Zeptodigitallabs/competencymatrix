@@ -23,9 +23,9 @@ const AppRoutes = () => {
   console.log('Auth state:', { isAuthenticated, user });
   
   // Load user on initial render
-  useEffect(() => {
-    dispatch(loadUser(true)); // Pass true to indicate initial load
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(loadUser(true)); // Pass true to indicate initial load
+  // }, [dispatch]);
   
   // Redirect to login if not authenticated
   if (!isAuthenticated && location.pathname !== '/login') {
@@ -38,7 +38,7 @@ const AppRoutes = () => {
   }
 
   // Determine user role with a default of 'employee' if not available
-  const userRole = user?.role || 'employee';
+  const userRole = user?.userType || 'Learner';
   
   return (
     <Routes>

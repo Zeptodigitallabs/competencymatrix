@@ -38,7 +38,6 @@ class AuthService {
           
           // Call success handler with user data
           onSuccess(userData);
-          console.log("userData",userData);
           
           onSuccess(userData);
           return userData;

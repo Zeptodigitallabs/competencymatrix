@@ -20,6 +20,8 @@ const userReducer = (state = initialState, action) => {
       };
 
     case actionTypes.SET_USERINFO:
+      console.log(action.payload);
+      
       return {
         ...state,
         userInfo: action.payload,
