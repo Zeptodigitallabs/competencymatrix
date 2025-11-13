@@ -149,11 +149,12 @@ function IconGrid() {
 
 
 function CompetencyMatrixApp({ userRole = 'Learner' }) {
-  const [view, setView] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedCompetency, setSelectedCompetency] = useState(null);
   const [cellDetail, setCellDetail] = useState(null);
+  const { view = 'dashboard' } = useParams();
+  const navigate = useNavigate();
   
   // Get user data from Redux store
   const { userInfo, loading, error } = useSelector(state => ({
@@ -237,32 +238,39 @@ function CompetencyMatrixApp({ userRole = 'Learner' }) {
     );
   };
 
+  // Handle view changes through navigation
+  const handleViewChange = (newView) => {
+    navigate(`/${userRole?.toLowerCase()}/${newView}`);
+  };
+
+  // Handle employee selection with navigation
+  const handleSelectEmployee = (employee, viewName = 'employees') => {
+    setSelectedEmployee(employee);
+    if (viewName) {
+      handleViewChange(viewName);
+    }
+  };
+
   return (
     <div className="h-screen flex bg-gray-50 font-sans text-gray-800">
-      {sidebarOpen && <Sidebar view={view} setView={setView} userRole={userRole} />}
+      {sidebarOpen && <Sidebar userRole={userRole} />}
 
       <div style={{ overflow: 'auto' }} className="flex-1 flex flex-col">
         <Topbar onToggleSidebar={() => setSidebarOpen((s) => !s)} />
 
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto p-4">
           {view === "dashboard" && userRole === 'InstitutionAdmin' && (
             <DashboardView 
               employees={employees} 
               competencies={competencies} 
-              onSelectEmployee={(e) => { 
-                setSelectedEmployee(e); 
-                setView('employees'); 
-              }} 
+              onSelectEmployee={handleSelectEmployee}
             />
           )}
           {view === "dashboard" && userRole === 'Manager' && (
             <ManagerDashboard
               employees={employees}
               competencies={competencies}
-              onSelectEmployee={(e) => {
-                setSelectedEmployee(e);
-                setView('employees');
-              }}
+              onSelectEmployee={handleSelectEmployee}
             />
           )}
           {view === "dashboard" && userRole === 'Learner' && (
@@ -273,53 +281,103 @@ function CompetencyMatrixApp({ userRole = 'Learner' }) {
             />
           )}
           {view === "employees" && (
-            <EmployeesView employees={employees} onSelectEmployee={(e) => setSelectedEmployee(e)} />
+            <EmployeesView 
+              employees={employees} 
+              onSelectEmployee={handleSelectEmployee} 
+            />
           )}
 
-          {/* placeholders for other views */}
-          {view === "frameworks" && (
-            <div className="p-6">Frameworks management placeholder</div>
+          {/* Admin Views */}
+          {userRole === 'InstitutionAdmin' && (
+            <>
+              {view === "reports" && (
+                <ReportsView
+                  employees={employees}
+                  roles={roles}
+                  competencies={competencies}
+                />
+              )}
+              {view === "competency-category" && <CompetencyCategoryMaster />}
+              {view === "competency" && <CompetencyMaster />}
+              {view === "employee-role" && <EmployeeRoleMaster />}
+              {view === "role-competency-mapping" && (
+                <RoleCompetencyMapping
+                  roles={roles}
+                  competencies={competencies}
+                  onSaveMapping={handleSaveRoleMapping}
+                />
+              )}
+              {view === "competency-library" && (
+                <CompetencyLibraryView
+                  competencies={competencies}
+                  onAddCompetency={handleAddCompetency}
+                  onEditCompetency={setSelectedCompetency}
+                  onDeleteCompetency={handleDeleteCompetency}
+                />
+              )}
+            </>
           )}
-          {view === "reports" && (
-            <ReportsView
-              employees={employees}
-              roles={roles}
-              competencies={competencies}
-            />
+
+          {/* Manager Views */}
+          {userRole === 'Manager' && (
+            <>
+              {view === "team-matrix" && (
+                <TeamCompetencyMatrix 
+                  employees={employees} 
+                  competencies={competencies} 
+                />
+              )}
+              {view === "team-assessments" && (
+                <TeamAssessments employees={employees} />
+              )}
+              {view === "team-learning" && (
+                <TeamLearningPaths 
+                  employees={employees} 
+                  competencies={competencies} 
+                />
+              )}
+            </>
           )}
-          {view === "competency-category" && <CompetencyCategoryMaster />}
-          {view === "competency-master" && <CompetencyMaster />}
-          {view === "employee-role-master" && <EmployeeRoleMaster />}
-          {view === "employee-role-competency-mapping" && <EmployeeRoleCompetencyMapping />}
-          {view === "role-mapping" && (
-            <RoleCompetencyMapping
-              roles={roles}
-              competencies={competencies}
-              onSaveMapping={handleSaveRoleMapping}
-            />
+
+          {/* Employee/Learner Views */}
+          {userRole === 'Learner' && (
+            <>
+              {view === "my-profile" && (
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <EmployeeProfile />
+                </div>
+              )}
+              {view === "my-assessments" && (
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <EmployeeAssessments/>
+                </div>
+              )}
+              {view === "my-learning" && (
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <EmployeeLearning/>
+                </div>
+              )}
+            </>
           )}
-          {view === "competency-library" && (
-            <CompetencyLibraryView
-              competencies={competencies}
-              onAddCompetency={handleAddCompetency}
-              onEditCompetency={setSelectedCompetency}
-              onDeleteCompetency={handleDeleteCompetency}
-            />
-          )}
-          {view === "team-matrix" && (
-            <TeamCompetencyMatrix employees={employees} competencies={competencies} />
-          )}
-          {view === "assessments" && (
-            <TeamAssessments employees={employees} />
-          )}
-          {view === "learning-paths" && (
-            <TeamLearningPaths employees={employees} competencies={competencies} />
-          )}
-          {view === "my-assessments" && (
-            <div className="bg-white p-6 rounded-lg shadow-sm"><EmployeeAssessments/></div>
-          )}
-          {view === "my-learning" && (
-            <div className="bg-white p-6 rounded-lg shadow-sm"><EmployeeLearning/></div>
+
+          {/* 404 - View not found */}
+          {!["dashboard", "employees", "reports", "competency-category", 
+              "competency", "employee-role", "role-competency-mapping", 
+              "competency-library", "team-matrix", "team-assessments", 
+              "team-learning", "my-profile", "my-assessments", "my-learning"
+            ].includes(view) && (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-gray-700 mb-2">Page Not Found</h2>
+                <p className="text-gray-500">The requested page does not exist or you don't have permission to access it.</p>
+                <button 
+                  onClick={() => handleViewChange('dashboard')}
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  Go to Dashboard
+                </button>
+              </div>
+            </div>
           )}
         </main>
       </div>

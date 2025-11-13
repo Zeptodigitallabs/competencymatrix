@@ -61,33 +61,99 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Admin Routes */}
-      <Route
-        path="/institutionadmin/*"
-        element={
-          <AdminRoute >
-            <CompetencyMatrixApp userRole={user?.userType} onLogout={handleLogout} />
-          </AdminRoute>
-        }
-      />
+      <Route path="/institutionadmin">
+        <Route 
+          index 
+          element={
+            <AdminRoute>
+              <Navigate to="dashboard" replace />
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path=":view" 
+          element={
+            <AdminRoute>
+              <CompetencyMatrixApp userRole="InstitutionAdmin" onLogout={handleLogout} />
+            </AdminRoute>
+          } 
+        />
+      </Route>
 
       {/* Manager Routes */}
-      <Route
-        path="/manager/*"
-        element={
-          <ManagerRoute >
-            <CompetencyMatrixApp userRole={user?.userType} onLogout={handleLogout} />
-          </ManagerRoute>
-        }
-      />
+      <Route path="/manager">
+        <Route 
+          index 
+          element={
+            <ManagerRoute>
+              <Navigate to="dashboard" replace />
+            </ManagerRoute>
+          } 
+        />
+        <Route 
+          path=":view" 
+          element={
+            <ManagerRoute>
+              <CompetencyMatrixApp userRole="Manager" onLogout={handleLogout} />
+            </ManagerRoute>
+          } 
+        />
+      </Route>
 
       {/* Learner/Employee Routes */}
-      <Route
-        path="/learner/*"
+      <Route path="/learner">
+        <Route 
+          index 
+          element={
+            <EmployeeRoute>
+              <Navigate to="dashboard" replace />
+            </EmployeeRoute>
+          } 
+        />
+        <Route 
+          path=":view" 
+          element={
+            <EmployeeRoute>
+              <CompetencyMatrixApp userRole="Learner" onLogout={handleLogout} />
+            </EmployeeRoute>
+          } 
+        />
+      </Route>
+
+      {/* Redirect root to login if not authenticated, otherwise to appropriate dashboard */}
+      <Route 
+        path="/" 
         element={
-          <EmployeeRoute >
-            <CompetencyMatrixApp userRole={user?.userType} onLogout={handleLogout} />
-          </EmployeeRoute>
-        }
+          isAuthenticated && user?.userType ? (
+            <Navigate to={`/${user.userType.toLowerCase()}/dashboard`} replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        } 
+      />
+      
+      {/* Login route */}
+      <Route 
+        path="/login" 
+        element={
+          isAuthenticated ? (
+            <Navigate to={`/${user.userType.toLowerCase()}/dashboard`} replace />
+          ) : (
+            <Login />
+          )
+        } 
+      />
+      
+      {/* Catch-all route */}
+      <Route 
+        path="*" 
+        element={
+          isAuthenticated ? (
+            <Navigate to={`/${user.userType.toLowerCase()}/dashboard`} replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        } 
       />
     </Routes>
   );

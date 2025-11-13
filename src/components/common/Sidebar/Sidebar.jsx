@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const NavItem = ({ label, active, onClick, icon: Icon }) => (
   <button
@@ -13,9 +13,16 @@ const NavItem = ({ label, active, onClick, icon: Icon }) => (
   </button>
 );
 
-const Sidebar = ({ view, setView, userRole }) => {
+const Sidebar = ({ userRole }) => {
   const [expandedItems, setExpandedItems] = React.useState({});
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get current view from URL
+  const getCurrentView = () => {
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    return pathParts.length > 1 ? pathParts[pathParts.length - 1] : 'dashboard';
+  };
 
   const toggleItem = (itemId) => {
     setExpandedItems(prev => ({
@@ -69,52 +76,61 @@ const Sidebar = ({ view, setView, userRole }) => {
     }
   };
 
+  const isActive = (itemId) => {
+    const currentView = getCurrentView();
+    return currentView === itemId || 
+           (currentView === 'role-competency-mapping' && itemId === 'masters');
+  };
+
   const renderNavItems = (items, level = 0) => {
-    return items.map((item) => (
-      <div key={item.id} className="space-y-1">
-        <div 
-          className={`flex items-center justify-between rounded-md ${level > 0 ? 'pl-6' : ''}`}
-          onClick={() => item.children ? toggleItem(item.id) : setView(item.id)}
-        >
-          <NavItem
-            label={item.label}
-            active={view === item.id}
-            icon={item.icon}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!item.children) {
-                setView(item.id);
-              } else {
-                toggleItem(item.id);
-              }
-            }}
-          />
-          {item.children && (
-            <button 
+    return items.map((item) => {
+      const isItemActive = isActive(item.id);
+      return (
+        <div key={item.id} className="space-y-1">
+          <div 
+            className={`flex items-center justify-between rounded-md ${level > 0 ? 'pl-6' : ''} ${isItemActive ? 'bg-indigo-50' : ''}`}
+            onClick={() => item.children ? toggleItem(item.id) : navigate(`/${userRole?.toLowerCase()}/${item.id}`)}
+          >
+            <NavItem
+              label={item.label}
+              active={isItemActive}
+              icon={item.icon}
               onClick={(e) => {
                 e.stopPropagation();
-                toggleItem(item.id);
+                if (!item.children) {
+                  navigate(`/${userRole?.toLowerCase()}/${item.id}`);
+                } else {
+                  toggleItem(item.id);
+                }
               }}
-              className="p-1 text-gray-500 hover:text-gray-700"
-            >
-              <svg 
-                className={`w-4 h-4 transform transition-transform ${expandedItems[item.id] ? 'rotate-180' : ''}`} 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
+            />
+            {item.children && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleItem(item.id);
+                }}
+                className="p-1 text-gray-500 hover:text-gray-700"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+                <svg 
+                  className={`w-4 h-4 transform transition-transform ${expandedItems[item.id] ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            )}
+          </div>
+          {item.children && (expandedItems[item.id] || isItemActive) && (
+            <div className="mt-1 space-y-1">
+              {renderNavItems(item.children, level + 1)}
+            </div>
           )}
         </div>
-        {item.children && expandedItems[item.id] && (
-          <div className="mt-1 space-y-1">
-            {renderNavItems(item.children, level + 1)}
-          </div>
-        )}
-      </div>
-    ));
+      );
+    });
   };
 
   return (
