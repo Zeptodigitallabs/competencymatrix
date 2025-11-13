@@ -7,6 +7,8 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const user = useSelector(state => state.user?.userInfo);
   const location = useLocation();
 
+  console.log(user?.userType);
+  
   if (loading) {
     // Show loading spinner or skeleton while checking auth
     return <div>Loading...</div>;
@@ -18,13 +20,10 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   }
 
   // Check if user has required role
-  // Update role checks to be case-insensitive
-  if (allowedRoles.length > 0 && (!user || !allowedRoles.some(role =>
-    role.toLowerCase() === user?.userType?.toLowerCase()
-  ))) {
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.userType)) {
+    // Redirect to unauthorized or home if role not allowed
     return <Navigate to="/unauthorized" replace />;
   }
-
   return children;
 };
 

@@ -66,9 +66,6 @@ export default function authReducer(state = initialState, action) {
       };
     
     case LOGOUT:
-      // Clear all auth data
-      sessionStorage.removeItem('token');
-      
       return {
         ...state,
         token: null,

@@ -11,10 +11,19 @@ const persistConfig = {
   whitelist: ['auth','user'] // only auth will be persisted
 };
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   auth: authReducer,
   user: userReducer
 });
+
+const rootReducer = (state, action) => {
+  if (action.type === 'RESET_STORE') {
+    // Clear all persisted state
+    storage.removeItem('persist:root');
+    state = undefined;
+  }
+  return appReducer(state, action);
+};
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

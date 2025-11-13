@@ -160,21 +160,11 @@ export const logout = () => (dispatch) => {
     // Clear all auth data from storage
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    
     // Clear any existing errors
     dispatch({ type: CLEAR_ERROR });
     
-    // Dispatch logout action
-    dispatch({
-      type: LOGOUT,
-      payload: {
-        message: 'Successfully logged out',
-        code: 'LOGOUT_SUCCESS',
-        timestamp: new Date().toISOString()
-      }
-    });
+   // Reset the entire Redux store
+    dispatch({ type: 'RESET_STORE' });
     
     return true;
   } catch (error) {
@@ -190,6 +180,6 @@ export const logout = () => (dispatch) => {
     return false;
   } finally {
     // Redirect to login page
-    window.location.href = '/login';
+   // window.location.href = '/login';
   }
 };
