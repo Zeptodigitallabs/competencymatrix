@@ -704,17 +704,34 @@ function ManagerDashboard({ employees, competencies, onSelectEmployee }) {
   );
 }
 
-function EmployeeDashboard({ employees, competencies, onSelectEmployee }) {
+function EmployeeDashboard({ employees = [], competencies = [], onSelectEmployee = () => {} }) {
   // For demo, using the first employee as the current user
-  const currentUser = employees[0];
+  const currentUser = employees?.[0] || { 
+    name: 'User', 
+    role: 'Employee', 
+    dept: 'Department',
+    competencies: {} 
+  };
 
-  const topSkills = Object.entries(currentUser.competencies || {})
+  // Add fallback empty object for competencies
+  const userCompetencies = currentUser?.competencies || {};
+
+  const topSkills = Object.entries(userCompetencies)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
 
-  const skillGaps = Object.entries(currentUser.competencies || {})
-    .filter(([_, level]) => level < 3)
+  const skillGaps = Object.entries(userCompetencies)
+    .filter((_, level) => level < 3)
     .sort((a, b) => a[1] - b[1]);
+
+  // If no user data is available yet, show a loading state
+  if (!employees.length) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
