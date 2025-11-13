@@ -41,14 +41,23 @@ const AppRoutes = () => {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector(state => state.auth);
   const user = useSelector(state => state.user?.userInfo);
-  const userRole = user?.userType || 'Learner';
+  const userRole = user?.userType;
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Set loading to false once we have the user role or confirm it's a public route
+  useEffect(() => {
+    if (!isAuthenticated || (isAuthenticated && userRole !== undefined)) {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated, userRole]);
   
   // Handle navigation after login
   useEffect(() => {
     if (isAuthenticated && userRole) {
       const userType = userRole.toLowerCase();
-      if (location.pathname === '/' || location.pathname === '/login') {
-        navigate(`/${userType}`, { replace: true });
+      // Only navigate if we have a valid path
+      if (location.pathname === '/' || location.pathname === '/login' || location.pathname.includes('undefined')) {
+        navigate(`/${userType}/dashboard`, { replace: true });
       }
     }
   }, [isAuthenticated, userRole, navigate, location.pathname]);
@@ -58,11 +67,11 @@ const AppRoutes = () => {
     AuthService.logout();
   };
 
-  // Show loading state while checking authentication
-  if (loading) {
+  // Show loading state while checking authentication or user data
+  if (isLoading || (isAuthenticated && userRole === undefined)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
@@ -119,7 +128,7 @@ const AppRoutes = () => {
         path="/login" 
         element={
           isAuthenticated ? (
-            <Navigate to={`/${userRole.toLowerCase()}/dashboard`} replace />
+            <Navigate to={`/${userRole?.toLowerCase()}/dashboard`} replace />
           ) : (
             <Login />
           )
@@ -131,7 +140,7 @@ const AppRoutes = () => {
         path="/" 
         element={
           isAuthenticated ? (
-            <Navigate to={`/${userRole.toLowerCase()}/dashboard`} replace />
+            <Navigate to={`/${userRole?.toLowerCase()}/dashboard`} replace />
           ) : (
             <Navigate to="/login" replace />
           )
@@ -145,7 +154,7 @@ const AppRoutes = () => {
           element={
             <>
               {userRole === 'InstitutionAdmin' && (
-                <AdminRoute>
+                <AdminRoute userRole={userRole}> 
                   {renderRoutes({
                     userRole,
                     employees,
@@ -161,7 +170,7 @@ const AppRoutes = () => {
                 </AdminRoute>
               )}
               {userRole === 'Manager' && (
-                <ManagerRoute>
+                <ManagerRoute userRole={userRole}>
                   {renderRoutes({
                     userRole,
                     employees,
@@ -173,7 +182,7 @@ const AppRoutes = () => {
                 </ManagerRoute>
               )}
               {userRole === 'Learner' && (
-                <EmployeeRoute>
+                <EmployeeRoute userRole={userRole}>
                   {renderRoutes({
                     userRole,
                     employees,
@@ -193,7 +202,7 @@ const AppRoutes = () => {
         path="*" 
         element={
           isAuthenticated ? (
-            <Navigate to={`/${userRole.toLowerCase()}/dashboard`} replace />
+            <Navigate to={`/${userRole?.toLowerCase()}/dashboard`} replace />
           ) : (
             <Navigate to="/login" replace />
           )

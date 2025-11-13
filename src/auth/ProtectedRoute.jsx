@@ -2,12 +2,12 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
+export const ProtectedRoute = ({ children, allowedRoles = [],userRole }) => {
   const { isAuthenticated, loading } = useSelector(state => state.auth);
-  const user = useSelector(state => state.user?.userInfo);
+
   const location = useLocation();
 
-  console.log(user?.userType);
+  console.log(userRole);
   
   if (loading) {
     // Show loading spinner or skeleton while checking auth
@@ -20,7 +20,7 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   }
 
   // Check if user has required role
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.userType)) {
+  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
     // Redirect to unauthorized or home if role not allowed
     return <Navigate to="/unauthorized" replace />;
   }
@@ -28,20 +28,20 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 };
 
 // Role-specific route components
-export const AdminRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['InstitutionAdmin']}>
+export const AdminRoute = ({ children, userRole }) => (
+  <ProtectedRoute allowedRoles={['InstitutionAdmin']} userRole={userRole}>
     {children}
   </ProtectedRoute>
 );
 
-export const ManagerRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['InstitutionAdmin', 'Manager']}>
+export const ManagerRoute = ({ children, userRole }) => (
+  <ProtectedRoute allowedRoles={['InstitutionAdmin', 'Manager']} userRole={userRole}>
     {children}
   </ProtectedRoute>
 );
 
-export const EmployeeRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['InstitutionAdmin', 'Manager', 'Learner']}>
+export const EmployeeRoute = ({ children, userRole }) => (
+  <ProtectedRoute allowedRoles={['InstitutionAdmin', 'Manager', 'Learner']} userRole={userRole}>
     {children}
   </ProtectedRoute>
 );

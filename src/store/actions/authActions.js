@@ -156,30 +156,26 @@ export const loadUser = (isInitialLoad = false) => async (dispatch) => {
 };
 
 export const logout = () => (dispatch) => {
-  try {
-    // Clear all auth data from storage
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
-    // Clear any existing errors
-    dispatch({ type: CLEAR_ERROR });
-    
-   // Reset the entire Redux store
-    dispatch({ type: 'RESET_STORE' });
-    
-    return true;
-  } catch (error) {
-    console.error('Logout error:', error);
-    dispatch({
-      type: AUTH_ERROR,
-      payload: {
-        message: 'Error during logout',
-        code: 'LOGOUT_ERROR',
-        details: error.message
-      }
-    });
-    return false;
-  } finally {
-    // Redirect to login page
-   // window.location.href = '/login';
-  }
+  return new Promise((resolve) => {
+    try {
+      // Clear all auth data from storage
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      
+      // Dispatch logout success
+      dispatch({ type: LOGOUT });
+      
+      // Clear data from Redux store
+      dispatch({ type: 'RESET_STORE' });
+      
+      resolve();
+    } catch (error) {
+      console.error('Logout failed:', error);
+      dispatch({ 
+        type: 'LOGOUT_FAIL', 
+        payload: error.message 
+      });
+      resolve(); // Still resolve to ensure the .then() always runs
+    }
+  });
 };

@@ -7,16 +7,15 @@ const Topbar = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleLogout = () => {
-    // Dispatch the logout action
-    dispatch(logout())
-      .then(() => {
-        // Navigate to login after successful logout
-        navigate('/login');
-      })
-      .catch(error => {
-        console.error('Logout failed:', error);
-      });
+  const handleLogout = async () => {
+    try {
+      // Dispatch the logout action and wait for it to complete
+      await dispatch(logout());
+      // Navigate to login after successful logout
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (
