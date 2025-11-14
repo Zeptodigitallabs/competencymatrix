@@ -31,10 +31,6 @@ const AppRoutes = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   
-  // State declarations
-  const [employees, setEmployees] = useState([]);
-  const [roles, setRoles] = useState([]);
-
   // Get auth state and user info from Redux
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector(state => state.auth);
@@ -73,16 +69,6 @@ const AppRoutes = () => {
       </div>
     );
   }
-
-  const handleSaveRoleMapping = (roleId, competencyLevels) => {
-    setRoles(prev =>
-      prev.map(role =>
-        role.id === roleId
-          ? { ...role, competencyLevels: { ...competencyLevels } }
-          : role
-      )
-    );
-  };
 
   const handleSelectEmployee = (employee, viewName = 'employees') => {
     // In a real app, you might want to set the selected employee in state
@@ -129,11 +115,7 @@ const AppRoutes = () => {
                 <AdminRoute userRole={userRole}> 
                   {renderRoutes({
                     userRole,
-                    employees,
-                    roles,
-                    onSelectEmployee: handleSelectEmployee,
-                    onSaveRoleMapping: handleSaveRoleMapping,
-                    onLogout: handleLogout
+                    onSelectEmployee: handleSelectEmployee
                   })}
                 </AdminRoute>
               )}
@@ -141,10 +123,7 @@ const AppRoutes = () => {
                 <ManagerRoute userRole={userRole}>
                   {renderRoutes({
                     userRole,
-                    employees,
-                    roles,
-                    onSelectEmployee: handleSelectEmployee,
-                    onLogout: handleLogout
+                    onSelectEmployee: handleSelectEmployee
                   })}
                 </ManagerRoute>
               )}
@@ -152,9 +131,7 @@ const AppRoutes = () => {
                 <EmployeeRoute userRole={userRole}>
                   {renderRoutes({
                     userRole,
-                    employees,
-                    onSelectEmployee: handleSelectEmployee,
-                    onLogout: handleLogout
+                    onSelectEmployee: handleSelectEmployee
                   })}
                 </EmployeeRoute>
               )}

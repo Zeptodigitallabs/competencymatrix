@@ -155,27 +155,24 @@ export const loadUser = (isInitialLoad = false) => async (dispatch) => {
   }
 };
 
-export const logout = () => (dispatch) => {
-  return new Promise((resolve) => {
-    try {
-      // Clear all auth data from storage
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
-      
-      // Dispatch logout success
-      dispatch({ type: LOGOUT });
-      
-      // Clear data from Redux store
-      dispatch({ type: 'RESET_STORE' });
-      
-      resolve();
-    } catch (error) {
-      console.error('Logout failed:', error);
-      dispatch({ 
-        type: 'LOGOUT_FAIL', 
-        payload: error.message 
-      });
-      resolve(); // Still resolve to ensure the .then() always runs
-    }
-  });
+export const logout = () => async (dispatch) => {
+  try {
+    // Call the AuthService logout which handles the API call and local storage cleanup
+    await AuthService.logout();
+    
+    // Dispatch logout success
+    dispatch({ type: LOGOUT });
+    
+    // Clear data from Redux store
+    dispatch({ type: 'RESET_STORE' });
+    
+    return Promise.resolve();
+  } catch (error) {
+    console.error('Logout failed:', error);
+    dispatch({ 
+      type: 'LOGOUT_FAIL', 
+      payload: error.message 
+    });
+    return Promise.resolve(); // Still resolve to ensure the .then() always runs
+  }
 };

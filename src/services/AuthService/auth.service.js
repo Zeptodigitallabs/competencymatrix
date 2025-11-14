@@ -72,13 +72,21 @@ class AuthService {
       .finally(onFinal);
   }
   
-  static logout() {
-    // Clear all auth data
-    sessionStorage.removeItem('token');
-    localStorage.removeItem('user');
-    
-    // Redirect to login page
-    window.location.href = '/login';
+  static async logout() {
+    try {
+      // Call the logout API endpoint
+      await axiosConfig().post('/logout', null);
+    } catch (error) {
+      console.error('Logout API call failed:', error);
+      // Continue with local logout even if API call fails
+    } finally {
+      // Clear all auth data
+      sessionStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Redirect to login page
+      window.location.href = '/login';
+    }
   }
   
   static isAuthenticated() {
