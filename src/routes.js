@@ -105,7 +105,7 @@ export const renderRoutes = (props) => {
             element={renderWithLayout(EmployeeRoleMaster, adminProps, 'InstitutionAdmin')} 
           />
           <Route 
-            path="role-competency-mapping" 
+            path="role-mapping" 
             element={renderWithLayout(EmployeeRoleCompetencyMapping, adminProps, 'InstitutionAdmin')} 
           />
           <Route path="*" element={<NotFoundPage />} />
