@@ -98,7 +98,7 @@ export const renderRoutes = (props) => {
           />
           <Route 
             path="competency" 
-            element={<CompetencyMaster />} 
+            element={renderWithLayout(CompetencyMaster, adminProps, 'InstitutionAdmin')} 
           />
           <Route 
             path="employee-role" 
