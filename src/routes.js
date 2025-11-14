@@ -9,7 +9,7 @@ import ReportsPage from './pages/admin/ReportsPage';
 import CompetencyCategoryMaster from './components/masters/CompetencyCategoryMaster';
 import CompetencyMaster from './components/masters/CompetencyMaster';
 import EmployeeRoleMaster from './components/masters/EmployeeRoleMaster';
-import RoleCompetencyMapping from './components/role-competency-mapping/RoleCompetencyMapping';
+import EmployeeRoleCompetencyMapping from './components/masters/EmployeeRoleCompetencyMapping';
 
 // Manager Pages
 import ManagerDashboardPage from './pages/manager/ManagerDashboard';
@@ -94,7 +94,7 @@ export const renderRoutes = (props) => {
           />
           <Route 
             path="competency-category" 
-            element={<CompetencyCategoryMaster />} 
+            element={renderWithLayout(CompetencyCategoryMaster, adminProps, 'InstitutionAdmin')} 
           />
           <Route 
             path="competency" 
@@ -102,11 +102,11 @@ export const renderRoutes = (props) => {
           />
           <Route 
             path="employee-role" 
-            element={<EmployeeRoleMaster />} 
+            element={renderWithLayout(EmployeeRoleMaster, adminProps, 'InstitutionAdmin')} 
           />
           <Route 
-            path="role-mapping" 
-            element={renderWithLayout(RoleCompetencyMapping, adminProps, 'InstitutionAdmin')} 
+            path="role-competency-mapping" 
+            element={renderWithLayout(EmployeeRoleCompetencyMapping, adminProps, 'InstitutionAdmin')} 
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

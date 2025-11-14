@@ -54,7 +54,7 @@ const CompetencyService = {
       console.error('Error fetching competency categories:', error);
       throw error;
     }
-  }
+  },
 };
 
 export default CompetencyService;
