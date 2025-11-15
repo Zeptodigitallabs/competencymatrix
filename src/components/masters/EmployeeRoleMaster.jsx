@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import EmployeeService from '../../services/EmployeeService';
+import { store } from '../../store';
 
 // Loading spinner component
 const LoadingSpinner = () => (
@@ -31,8 +32,7 @@ const EmployeeRoleMaster = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    roleName: '',
-    description: ''
+    empRoleName: ''
   });
 
   // Fetch roles on component mount
@@ -41,45 +41,33 @@ const EmployeeRoleMaster = () => {
   }, []);
 
   const fetchRoles = async () => {
-    try {
-      console.log('Fetching roles...');
-      setIsLoading(true);
-      const data = await EmployeeService.getEmployeeRoles();
-      console.log('Fetched roles data:', data);
-      
-      // Ensure we have an array of roles
-      const formattedRoles = Array.isArray(data) ? data : [];
-      console.log('Formatted roles:', formattedRoles);
-      
-      setRoles(formattedRoles);
-      
-      if (formattedRoles.length === 0) {
-        console.warn('No roles found in the response');
-      }
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Failed to load employee roles';
-      setError(errorMessage);
-      console.error('Error in fetchRoles:', {
-        message: err.message,
-        response: err.response,
-        stack: err.stack
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  try {
+    setIsLoading(true);
+    const data = await EmployeeService.getEmployeeRoles();
+   setRoles(Array.isArray(data) ? data : (data?.data || []));
+  } catch (err) {
+    const errorMessage = err.response?.data?.message || 'Failed to load employee roles';
+    setError(errorMessage);
+    console.error('Error in fetchRoles:', {
+      message: err.message,
+      response: err.response,
+      stack: err.stack
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleAddClick = () => {
     setEditingRole(null);
-    setFormData({ roleName: '', description: '' });
+    setFormData({ empRoleName: '' });
     setIsModalOpen(true);
   };
 
   const handleEditClick = (role) => {
     setEditingRole(role);
     setFormData({
-      roleName: role.roleName || '',
-      description: role.description || ''
+      empRoleName: role.empRoleName || ''
     });
     setIsModalOpen(true);
   };
@@ -89,7 +77,7 @@ const EmployeeRoleMaster = () => {
       try {
         setIsLoading(true);
         await EmployeeService.deleteEmployeeRole(roleId);
-        setRoles(prev => prev.filter(role => role.roleId !== roleId));
+        setRoles(prev => prev.filter(role => role.empRoleId !== roleId));
       } catch (err) {
         setError('Failed to delete role');
         console.error('Error deleting role:', err);
@@ -103,23 +91,26 @@ const EmployeeRoleMaster = () => {
     e.preventDefault();
     try {
       setIsLoading(true);
-      const roleData = {
-        ...formData,
-        roleId: editingRole?.roleId
-      };
+      const state = store.getState();
+      const institutionId = state.user?.userInfo?.institutionId;
       
-      const savedRole = editingRole
-        ? await EmployeeService.saveEmployeeRole(roleData)
-        : await EmployeeService.saveEmployeeRole(roleData);
-      
-      if (editingRole) {
-        setRoles(prev => 
-          prev.map(r => r.roleId === savedRole.roleId ? savedRole : r)
-        );
-      } else {
-        setRoles(prev => [...prev, savedRole]);
+      if (!institutionId) {
+        throw new Error('Institution ID not found in user info');
       }
+
+      const roleData = {
+        empRoleId: editingRole?.empRoleId || 0,
+        empRoleName: formData.empRoleName,
+        institutionId: institutionId,
+        isActive: true,
+        isDeleted: false
+      };
+      console.log(roleData);
       
+      await EmployeeService.saveEmployeeRole(roleData);
+      
+      // Refresh the roles list
+      fetchRoles();
       setIsModalOpen(false);
     } catch (err) {
       setError(`Failed to ${editingRole ? 'update' : 'create'} role`);
@@ -139,15 +130,14 @@ const EmployeeRoleMaster = () => {
 
   // Filter roles based on search term
   const filteredRoles = roles.filter(role => 
-    (role.roleName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (role.description?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    (role.empRoleName?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   // Handle loading state
-  if (isLoading && roles.length === 0) {
+  if (isLoading) {
     return <LoadingSpinner />;
   }
-
+  
   // Handle error state
   if (error) {
     return <ErrorMessage message={error} onRetry={fetchRoles} />;
@@ -206,15 +196,15 @@ const EmployeeRoleMaster = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredRoles.map((role) => (
-                  <tr key={role.roleId} className="hover:bg-gray-50">
+                  <tr key={role.empRoleId} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {role.roleId || 'N/A'}
+                        {role.empRoleId || 'N/A'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {role.roleName || 'Unnamed Role'}
+                        {role.empRoleName || 'Unnamed Role'}
                       </div>
                     </td>
                     {/* <td className="px-6 py-4">
@@ -241,7 +231,7 @@ const EmployeeRoleMaster = () => {
                           </svg>
                         </button>
                         <button
-                          onClick={() => handleDelete(role.roleId)}
+                          onClick={() => handleDelete(role.empRoleId)}
                           className="text-red-600 hover:text-red-900"
                           title="Delete"
                         >
@@ -276,28 +266,15 @@ const EmployeeRoleMaster = () => {
                   <div className="mt-4">
                     <form onSubmit={handleSubmit}>
                       <div className="mb-4">
-                        <label htmlFor="roleName" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="empRoleName" className="block text-sm font-medium text-gray-700">
                           Role Name *
                         </label>
                         <input
                           type="text"
-                          name="roleName"
-                          id="roleName"
+                          name="empRoleName"
+                          id="empRoleName"
                           required
-                          value={formData.roleName}
-                          onChange={handleInputChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                          Description
-                        </label>
-                        <textarea
-                          name="description"
-                          id="description"
-                          rows="3"
-                          value={formData.description}
+                          value={formData.empRoleName}
                           onChange={handleInputChange}
                           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
