@@ -1,11 +1,24 @@
 import axiosConfig from '../util/axios';
+import { store } from '../store/index';
 
 const EmployeeService = {
   // Get all employee roles
   async getEmployeeRoles() {
     try {
       console.log('Fetching employee roles...');
-      const response = await axiosConfig().get('CompetencyMatrix/GetEmployeeRoleList');
+      // Get user info from Redux store
+      const state = store.getState();
+      const institutionId = state.user?.userInfo?.institutionId;
+      
+      if (!institutionId) {
+        console.error('Institution ID not found in user info');
+        throw new Error('User institution information not available');
+      }
+      
+      const response = await axiosConfig().post(
+        'CompetencyMatrix/GetEmployeeRoleList',
+        { institutionId }
+      );
       console.log('Employee roles API response:', response);
       
       // Handle different response formats
