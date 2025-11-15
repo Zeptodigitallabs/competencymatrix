@@ -54,28 +54,6 @@ const CompetencyService = {
     }
   },
 
-  // Get all competency categories
-  async getCompetencyCategories() {
-    try {
-      // Get user info from Redux store
-      const state = store.getState();
-      const institutionId = state.user?.userInfo?.institutionId;
-      
-      if (!institutionId) {
-        console.error('Institution ID not found in user info');
-        throw new Error('User institution information not available');
-      }
-      
-      const response = await axiosConfig().post(
-        'CompetencyMatrix/GetCompetencyCategoryList',
-        { institutionId }
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching competency categories:', error);
-      throw error;
-    }
-  },
 };
 
 export default CompetencyService;

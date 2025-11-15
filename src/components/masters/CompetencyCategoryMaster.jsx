@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import CompetencyService from '../../services/CompetencyService';
+import CompetencyCategoriesService from '../../services/CompetencyCategoriesService';
+import { store } from '../../store';
 
 const CompetencyCategoryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -9,8 +10,7 @@ const CompetencyCategoryPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    categoryName: '',
-    description: ''
+    categoryName: ''
   });
 
   // Fetch categories on component mount
@@ -21,9 +21,8 @@ const CompetencyCategoryPage = () => {
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
-      const data = await CompetencyService.getCompetencyCategories();
-      const formattedCategories = Array.isArray(data) ? data : (data.data || []);
-      setCategories(formattedCategories);
+      const data = await CompetencyCategoriesService.getCompetencyCategories();
+      setCategories(Array.isArray(data) ? data : (data?.data || []));
     } catch (err) {
       setError('Failed to load categories');
       console.error('Error fetching categories:', err);
@@ -34,15 +33,14 @@ const CompetencyCategoryPage = () => {
 
   const handleAddClick = () => {
     setEditingCategory(null);
-    setFormData({ categoryName: '', description: '' });
+    setFormData({ categoryName: '' });
     setIsModalOpen(true);
   };
 
   const handleEditClick = (category) => {
     setEditingCategory(category);
     setFormData({
-      categoryName: category.categoryName || '',
-      description: category.description || ''
+      categoryName: category.categoryName || ''
     });
     setIsModalOpen(true);
   };
@@ -51,7 +49,7 @@ const CompetencyCategoryPage = () => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
         setIsLoading(true);
-        await CompetencyService.deleteCompetencyCategory(categoryId);
+        await CompetencyCategoriesService.deleteCompetencyCategory(categoryId);
         setCategories(prev => prev.filter(cat => cat.compCategoryId !== categoryId));
       } catch (err) {
         setError('Failed to delete category');
@@ -66,14 +64,22 @@ const CompetencyCategoryPage = () => {
     e.preventDefault();
     try {
       setIsLoading(true);
+      const state = store.getState();
+      const institutionId = state.user?.userInfo?.institutionId;
+      
+      if (!institutionId) {
+        throw new Error('Institution ID not found in user info');
+      }
+
       const categoryData = {
-        ...formData,
-        compCategoryId: editingCategory?.compCategoryId
+        compCategoryId: editingCategory?.compCategoryId || 0,
+        categoryName: formData.categoryName,
+        institutionId: institutionId,
+        isActive: true,
+        isDeleted: false
       };
       
-      const savedCategory = editingCategory
-        ? await CompetencyService.updateCompetencyCategory(categoryData)
-        : await CompetencyService.createCompetencyCategory(categoryData);
+      const savedCategory = await CompetencyCategoriesService.saveCompetencyCategory(categoryData);
       
       if (editingCategory) {
         setCategories(prev => 
@@ -102,8 +108,7 @@ const CompetencyCategoryPage = () => {
 
   // Filter categories based on search term
   const filteredCategories = categories.filter(category => 
-    category.categoryName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    category.categoryName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading && categories.length === 0) {
@@ -159,9 +164,6 @@ const CompetencyCategoryPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
-                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -173,9 +175,6 @@ const CompetencyCategoryPage = () => {
                   <tr key={category.compCategoryId} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{category.categoryName}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-500">{category.description || 'No description'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
@@ -231,19 +230,6 @@ const CompetencyCategoryPage = () => {
                           id="categoryName"
                           required
                           value={formData.categoryName}
-                          onChange={handleInputChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                          Description
-                        </label>
-                        <textarea
-                          name="description"
-                          id="description"
-                          rows="3"
-                          value={formData.description}
                           onChange={handleInputChange}
                           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />

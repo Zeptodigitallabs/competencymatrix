@@ -11,7 +11,6 @@ const CompetencyMaster = () => {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     competencyName: '',
-    description: '',
     compCategoryId: ''
   });
 
@@ -42,7 +41,6 @@ const CompetencyMaster = () => {
     setEditingCompetency(null);
     setFormData({
       competencyName: '',
-      description: '',
       compCategoryId: categories[0]?.compCategoryId || ''
     });
     setIsModalOpen(true);
@@ -52,7 +50,6 @@ const CompetencyMaster = () => {
     setEditingCompetency(competency);
     setFormData({
       competencyName: competency.competencyName || '',
-      description: competency.description || '',
       compCategoryId: competency.compCategoryId || ''
     });
     setIsModalOpen(true);
@@ -75,29 +72,29 @@ const CompetencyMaster = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.competencyName || !formData.compCategoryId) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const competencyData = {
-        ...formData,
-        competencyId: editingCompetency?.competencyId
-      };
-      
-      const savedCompetency = editingCompetency
-        ? await CompetencyService.saveCompetency(competencyData)
-        : await CompetencyService.saveCompetency(competencyData);
-      
       if (editingCompetency) {
-        setCompetencies(prev => 
-          prev.map(comp => comp.competencyId === savedCompetency.competencyId ? savedCompetency : comp)
-        );
+        await CompetencyService.updateCompetency(editingCompetency.competencyId, formData);
+        setCompetencies(competencies.map(comp => 
+          comp.competencyId === editingCompetency.competencyId 
+            ? { ...comp, ...formData } 
+            : comp
+        ));
       } else {
-        setCompetencies(prev => [...prev, savedCompetency]);
+        const newCompetency = await CompetencyService.saveCompetency(formData);
+        setCompetencies([...competencies, newCompetency]);
       }
-      
       setIsModalOpen(false);
-    } catch (err) {
+      setFormData({ competencyName: '', compCategoryId: '' });
+    } catch (error) {
       setError(`Failed to ${editingCompetency ? 'update' : 'create'} competency`);
-      console.error('Error saving competency:', err);
+      console.error('Error saving competency:', error);
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +111,6 @@ const CompetencyMaster = () => {
   // Filter competencies based on search term
   const filteredCompetencies = competencies.filter(comp => 
     comp.competencyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    comp.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     categories.find(cat => cat.compCategoryId === comp.compCategoryId)?.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -180,9 +176,6 @@ const CompetencyMaster = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
-                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -198,11 +191,6 @@ const CompetencyMaster = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500">
                         {getCategoryName(competency.compCategoryId)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-500">
-                        {competency.description || 'No description'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -284,21 +272,7 @@ const CompetencyMaster = () => {
                   </select>
                 </div>
 
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows="3"
-                    className="w-full p-2 border rounded-md"
-                    disabled={isLoading}
-                  />
-                </div>
-
-                <div className="flex justify-end space-x-3">
+                <div className="flex justify-end space-x-3 mt-6">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
