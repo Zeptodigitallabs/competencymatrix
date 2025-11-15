@@ -43,11 +43,8 @@ function CompetencyLibraryView() {
 
   // Handle add new competency
   const handleAddClick = () => {
-    console.log('Add button clicked');
     setEditingCompetency(null);
-    console.log('Setting isModalOpen to true');
     setIsModalOpen(true);
-    console.log('isModalOpen should now be true');
   };
 
   // Handle edit competency
@@ -60,21 +57,25 @@ function CompetencyLibraryView() {
   const handleSave = async (competency) => {
     try {
       setIsLoading(true);
-      if (competency.id) {
-        // Update existing competency
-        const updatedCompetency = await CompetencyService.saveCompetency(competency);
-        setCompetencies(prev => 
-          prev.map(comp => comp.id === updatedCompetency.id ? updatedCompetency : comp)
-        );
-      } else {
-        // Add new competency
-        const newCompetency = await CompetencyService.saveCompetency(competency);
-        setCompetencies(prev => [...prev, newCompetency]);
-      }
+      // Save the competency
+      await CompetencyService.saveCompetency(competency);
+
+        // Close the modal
       setIsModalOpen(false);
+      
+      // After successful save, refresh the entire competencies list
+      await fetchCompetencies();
+      
+    
+      
+      // Show success message
     } catch (err) {
       setError('Failed to save competency');
-      console.error('Error saving competency:', err);
+      console.error('Error saving competency:', {
+        error: err,
+        message: err.message,
+        response: err.response
+      });
       throw err; // Re-throw to handle in the modal
     } finally {
       setIsLoading(false);

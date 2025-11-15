@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { store } from '../../store';
 import CompetencyService from '../../services/CompetencyService';
+import CompetencyCategoriesService from '../../services/CompetencyCategoriesService';
 
 const CompetencyModal = ({ 
   competency, 
@@ -10,8 +12,7 @@ const CompetencyModal = ({
   const [localCompetency, setLocalCompetency] = useState(competency || {
     name: '',
     category: '',
-    levels: 0,
-    linkedRoles: []
+    levels: 5
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,25 +23,22 @@ const CompetencyModal = ({
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const response = await CompetencyService.getCompetencyCategories();
-       
-       console.log(response);
-       
-        // Handle different possible response structures
-        const categoriesData = Array.isArray(response) 
-          ? response 
-          : (response.data || response.categories || []);
-          
+        const response = await CompetencyCategoriesService.getCompetencyCategories();
+        console.log('Categories response:', response);
+        
+        // Handle the response format from CompetencyCategoriesService
+        const categoriesData = response;
+        
         // Ensure we have an array of objects with at least id and name
         const formattedCategories = categoriesData.map(cat => ({
-          id: cat.compCategoryId,
-          name: cat.categoryName,
-          value: cat.categoryName
+          id: cat.compCategoryId || cat.id,
+          name: cat.categoryName || cat.name,
+          value: cat.categoryName || cat.name
         }));
         
         setCategories(formattedCategories);
         
-        // If this is a new competency, set the first category as default
+        // If this is a new competency and we have categories, set the first one as default
         if (!competency?.id && formattedCategories.length > 0) {
           setLocalCompetency(prev => ({
             ...prev,
@@ -49,7 +47,11 @@ const CompetencyModal = ({
         }
       } catch (err) {
         setError('Failed to load categories');
-        console.error('Error fetching categories:', err);
+        console.error('Error fetching categories:', {
+          error: err,
+          message: err.message,
+          response: err.response
+        });
       } finally {
         setLoading(false);
       }
@@ -62,22 +64,46 @@ const CompetencyModal = ({
     setLocalCompetency(competency || {
       name: '',
       category: '',
-      levels: 0,
-      linkedRoles: []
+      levels: 5
     });
   }, [competency]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(localCompetency);
-  };
-
-  const handleRoleChange = (e) => {
-    const roles = e.target.value.split(',').map(r => r.trim()).filter(Boolean);
-    setLocalCompetency(prev => ({
-      ...prev,
-      linkedRoles: roles
-    }));
+    
+    // Get institutionId from Redux store
+    const state = store.getState();
+    const institutionId = state.user?.userInfo?.institutionId;
+    
+    if (!institutionId) {
+      setError('Institution ID not found. Please try again.');
+      return;
+    }
+    
+    // Find the selected category to get its ID
+    const selectedCategory = categories.find(
+      cat => cat.name === localCompetency.category || cat.value === localCompetency.category
+    );
+    
+    if (!selectedCategory) {
+      setError('Please select a valid category');
+      return;
+    }
+    
+    // Format the data according to the API's expected structure
+    const competencyData = {
+      competencyId: localCompetency.id || 0, // 0 for new competency
+      compCategoryId: selectedCategory.id,
+      institutionId: institutionId,
+      competencyName: localCompetency.name,
+      minLevel: 1, // Default minimum level
+      maxLevel: localCompetency.levels || 5,
+      isActive: true,
+      isDeleted: false
+    };
+    
+    console.log('Saving competency:', competencyData);
+    onSave(competencyData);
   };
 
 
@@ -148,19 +174,6 @@ const CompetencyModal = ({
                 levels: Math.min(5, Math.max(1, parseInt(e.target.value) || 1)) 
               }))}
               className="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Linked Roles (comma separated)
-            </label>
-            <input
-              type="text"
-              value={Array.isArray(localCompetency.linkedRoles) ? localCompetency.linkedRoles.join(', ') : localCompetency.linkedRoles || ''}
-              onChange={handleRoleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              placeholder="e.g., Frontend Developer, Backend Developer"
             />
           </div>
           
