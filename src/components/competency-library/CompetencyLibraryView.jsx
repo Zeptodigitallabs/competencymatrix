@@ -20,18 +20,8 @@ function CompetencyLibraryView() {
     try {
       setIsLoading(true);
       const data = await CompetencyService.getCompetencies();
-      // Map the API response to match your component's expected format
-      const formattedCompetencies = data.map(comp => ({
-        id: comp.competencyId,
-        name: comp.competencyName,
-        category: comp.competencyName, // We'll map this to category name later
-        levels: comp.maxLevel, // Using maxLevel as the number of levels
-        minLevel: comp.minLevel,
-        isActive: comp.isActive,
-        // We'll need to fetch category names separately and map them
-        linkedRoles: [] // This would come from a different API endpoint
-      }));
-      setCompetencies(formattedCompetencies);
+      // Use the API response directly since it already has the correct field names
+      setCompetencies(data);
     } catch (err) {
       setError('Failed to load competencies');
       console.error('Error fetching competencies:', err);
@@ -91,11 +81,12 @@ function CompetencyLibraryView() {
         await CompetencyService.deleteCompetency(id);
         // Remove the deleted competency from the local state
         setCompetencies(prev => prev.filter(comp => comp.id !== id));
-        
+         // After successful save, refresh the entire competencies list
+         await fetchCompetencies();
         // Show success message or notification
         alert('Competency deleted successfully');
       } catch (err) {
-        setError('Failed to delete competency');
+        // setError('Failed to delete competency');
         console.error('Error deleting competency:', err);
         // Show error message to the user
         alert('Failed to delete competency. Please try again.');
@@ -106,12 +97,12 @@ function CompetencyLibraryView() {
   };
 
   // Get unique categories for filter
-  const categories = ['All', ...new Set(competencies.map(comp => comp.category))];
+  const categories = ['All', ...new Set(competencies.map(comp => comp.categoryName))];
 
   // Filter competencies based on search and category
   const filteredCompetencies = competencies.filter(comp => {
-    const name = comp?.name || '';
-    const category = comp?.category || '';
+    const name = comp?.competencyName || '';
+    const category = comp?.categoryName || '';
     const searchTermLower = searchTerm.toLowerCase();
     
     const matchesSearch = name.toLowerCase().includes(searchTermLower);
@@ -201,19 +192,19 @@ function CompetencyLibraryView() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredCompetencies.length > 0 ? (
                 filteredCompetencies.map((competency) => (
-                  <tr key={competency.id} className="hover:bg-gray-50">
+                  <tr key={competency.competencyId} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{competency.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{competency.competencyName}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{competency.category}</div>
+                      <div className="text-sm text-gray-500">{competency.categoryName || 'Uncategorized'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-1">
                         {[1, 2, 3, 4, 5].map((level) => (
                           <div
-                            key={level}
-                            className={`w-4 h-4 rounded-full ${level <= (competency.levels || 5) ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                            key={`${competency.competencyId}-${level}`}
+                            className={`w-4 h-4 rounded-full ${level <= (competency.maxLevel || 5) ? 'bg-indigo-600' : 'bg-gray-200'}`}
                             title={`Level ${level}`}
                           />
                         ))}
@@ -236,7 +227,7 @@ function CompetencyLibraryView() {
                           </svg>
                         </button>
                         <button
-                          onClick={() => handleDelete(competency.id)}
+                          onClick={() => handleDelete(competency.competencyId)}
                           className="text-red-600 hover:text-red-900"
                           title="Delete"
                         >

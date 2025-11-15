@@ -10,9 +10,14 @@ const CompetencyModal = ({
   onDelete
 }) => {
   const [localCompetency, setLocalCompetency] = useState(competency || {
-    name: '',
-    category: '',
-    levels: 5
+    competencyId: 0,  // 0 indicates a new competency
+    competencyName: '',
+    compCategoryId: null,
+    categoryName: '',
+    minLevel: 1,
+    maxLevel: 5,
+    isActive: true,
+    isDeleted: false
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -61,12 +66,25 @@ const CompetencyModal = ({
   }, [competency]);
 
   useEffect(() => {
-    setLocalCompetency(competency || {
-      name: '',
-      category: '',
-      levels: 5
-    });
-  }, [competency]);
+    console.log('Competency:', competency);
+    if (competency) {
+      setLocalCompetency({
+        ...competency
+      });
+    } else if (categories.length > 0) {
+      // Set default values when creating a new competency
+      setLocalCompetency({
+        competencyId: 0,
+        competencyName: '',
+        compCategoryId: categories[0]?.id || null,
+        categoryName: categories[0]?.name || '',
+        minLevel: 1,
+        maxLevel: 5,
+        isActive: true,
+        isDeleted: false
+      });
+    }
+  }, [competency, categories]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -80,27 +98,32 @@ const CompetencyModal = ({
       return;
     }
     
-    // Find the selected category to get its ID
-    const selectedCategory = categories.find(
-      cat => cat.name === localCompetency.category || cat.value === localCompetency.category
-    );
+    // Find the selected category
+    const selectedCategory = categories.find(cat => cat.id === localCompetency.compCategoryId);
     
-    if (!selectedCategory) {
-      setError('Please select a valid category');
+    if (!selectedCategory && categories.length > 0) {
+      // If no category is selected but we have categories, use the first one
+      setLocalCompetency(prev => ({
+        ...prev,
+        compCategoryId: categories[0].id,
+        categoryName: categories[0].name
+      }));
       return;
     }
     
-    // Format the data according to the API's expected structure
+    // Prepare the data for the API
     const competencyData = {
-      competencyId: localCompetency.id || 0, // 0 for new competency
-      compCategoryId: selectedCategory.id,
+      ...localCompetency,
       institutionId: institutionId,
-      competencyName: localCompetency.name,
-      minLevel: 1, // Default minimum level
-      maxLevel: localCompetency.levels || 5,
-      isActive: true,
-      isDeleted: false
+      // Ensure we have the correct ID field name for the API
+      competencyId: localCompetency.competencyId || 0
     };
+    
+    // Make sure we have the category ID
+    if (selectedCategory) {
+      competencyData.compCategoryId = selectedCategory.id;
+      competencyData.categoryName = selectedCategory.name;
+    }
     
     console.log('Saving competency:', competencyData);
     onSave(competencyData);
@@ -112,7 +135,7 @@ const CompetencyModal = ({
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-lg font-semibold">
-            {localCompetency.id ? 'Edit Competency' : 'Add New Competency'}
+            {localCompetency.competencyId ? 'Edit Competency' : 'Add New Competency'}
           </h3>
           <button 
             onClick={onClose}
@@ -130,8 +153,11 @@ const CompetencyModal = ({
             <label className="block text-sm font-medium text-gray-700">Name</label>
             <input
               type="text"
-              value={localCompetency.name}
-              onChange={(e) => setLocalCompetency(prev => ({ ...prev, name: e.target.value }))}
+              value={localCompetency.competencyName || ''}
+              onChange={(e) => setLocalCompetency(prev => ({
+                ...prev,
+                competencyName: e.target.value
+              }))}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
             />
@@ -145,33 +171,41 @@ const CompetencyModal = ({
               <p className="text-red-500 text-sm mt-1">{error}</p>
             ) : (
               <select
-                value={localCompetency.category}
-                onChange={(e) => setLocalCompetency(prev => ({ ...prev, category: e.target.value }))}
+                value={localCompetency.compCategoryId || ''}
+                onChange={(e) => {
+                  const selectedCategory = categories.find(cat => cat.id.toString() === e.target.value);
+                  setLocalCompetency(prev => ({
+                    ...prev,
+                    compCategoryId: selectedCategory?.id || null,
+                    categoryName: selectedCategory?.name || ''
+                  }));
+                }}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 required
-                disabled={loading}
+                disabled={loading || categories.length === 0}
               >
+                <option value="">Select a category</option>
                 {categories.map((category) => (
-                  <option key={category.id} value={category.value}>
+                  <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
                 ))}
               </select>
             )}
           </div>
-          
+            
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mt-4">
               Number of Levels (1-5)
             </label>
             <input
               type="number"
               min="1"
               max="5"
-              value={localCompetency.levels || 5}
+              value={localCompetency.maxLevel || 5}
               onChange={(e) => setLocalCompetency(prev => ({ 
                 ...prev, 
-                levels: Math.min(5, Math.max(1, parseInt(e.target.value) || 1)) 
+                maxLevel: Math.min(5, Math.max(1, parseInt(e.target.value) || 1)) 
               }))}
               className="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
@@ -201,7 +235,7 @@ const CompetencyModal = ({
                 type="submit"
                 className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                {localCompetency.id ? 'Update' : 'Create'} Competency
+                {localCompetency.competencyId ? 'Update' : 'Create'} Competency
               </button>
             </div>
           </div>
