@@ -40,11 +40,11 @@ const RoleCompetencyService = {
   },
   
   // Delete role-competency mapping
-  async deleteRoleCompetencyMapping(roleId, competencyId) {
+  async deleteRoleCompetencyMapping(id) {
     try {
       const response = await axiosConfig().post(
         'CompetencyMatrix/RemoveEmployeeRoleCompetency',
-        { roleId, competencyId }
+        { id}
       );
       return response.data;
     } catch (error) {
