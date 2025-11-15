@@ -81,14 +81,7 @@ const CompetencyCategoryPage = () => {
       
       const savedCategory = await CompetencyCategoriesService.saveCompetencyCategory(categoryData);
       
-      if (editingCategory) {
-        setCategories(prev => 
-          prev.map(cat => cat.compCategoryId === savedCategory.compCategoryId ? savedCategory : cat)
-        );
-      } else {
-        setCategories(prev => [...prev, savedCategory]);
-      }
-      
+      fetchCategories();
       setIsModalOpen(false);
     } catch (err) {
       setError(`Failed to ${editingCategory ? 'update' : 'create'} category`);

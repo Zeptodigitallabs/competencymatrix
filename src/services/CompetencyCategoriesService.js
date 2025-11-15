@@ -43,7 +43,7 @@ const CompetencyCategoriesService = {
     try {
       const response = await axiosConfig().post(
         'CompetencyMatrix/RemoveCompetencyCategory',
-        { categoryId }
+        {compCategoryId: categoryId }
       );
       return response.data;
     } catch (error) {
