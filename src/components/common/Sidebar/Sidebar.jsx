@@ -46,9 +46,9 @@ const Sidebar = ({ userRole }) => {
         label: 'Masters',
         children: [
           { id: 'competency-category', label: 'Competency Categories' },
-          { id: 'competency', label: 'Competencies' },
+          // { id: 'competency', label: 'Competencies' },
           { id: 'employee-role', label: 'Employee Roles' },
-          { id: 'role-competency-mapping', label: 'Role Competency Mappings' },
+          // { id: 'role-competency-mapping', label: 'Role Competency Mappings' },
         ]
       },
     ];

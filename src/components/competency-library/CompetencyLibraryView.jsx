@@ -24,7 +24,7 @@ function CompetencyLibraryView() {
       const formattedCompetencies = data.map(comp => ({
         id: comp.competencyId,
         name: comp.competencyName,
-        category: comp.compCategoryId, // We'll map this to category name later
+        category: comp.competencyName, // We'll map this to category name later
         levels: comp.maxLevel, // Using maxLevel as the number of levels
         minLevel: comp.minLevel,
         isActive: comp.isActive,
