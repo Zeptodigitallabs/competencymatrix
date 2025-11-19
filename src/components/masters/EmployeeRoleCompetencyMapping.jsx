@@ -50,7 +50,7 @@ const EmployeeRoleCompetencyMapping = () => {
     roleId: '',
     competencyId: '',
     minLevel: 1,
-    maxLevel: 5,
+    maxLevel: 1,
     isActive: true
   });
 
@@ -178,7 +178,7 @@ const EmployeeRoleCompetencyMapping = () => {
         roleId: '',
         competencyId: '',
         minLevel: 1,
-        maxLevel: 5,
+        maxLevel: 1,
         isActive: true
       });
       setIsModalOpen(true);
@@ -208,7 +208,7 @@ const EmployeeRoleCompetencyMapping = () => {
         roleId: role?.roleId || mapping.roleId || mapping.empRoleId,
         competencyId: mapping.competencyId,
         minLevel: mapping.minLevel || 1,
-        maxLevel: mapping.maxLevel || 5,
+        maxLevel: mapping.maxLevel || 1,
         isActive: mapping.isActive
       });
       setIsModalOpen(true);
@@ -282,22 +282,36 @@ const EmployeeRoleCompetencyMapping = () => {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    // Convert string numbers to actual numbers for level fields
-    const processedValue = type === 'number' && value !== ''
+    let processedValue = type === 'number' && value !== ''
       ? parseInt(value, 10)
       : type === 'checkbox'
         ? checked
         : value;
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: processedValue
-    }));
+
+
+    // If the changed field is competencyId and we have a new competency selected
+    if (name === 'competencyId' && value) {
+      const newCompetency = competencies.find(c => c.competencyId.toString() === value.toString());
+      const newMaxLevel = newCompetency?.maxLevel || 1;
+      setFormData(prev => ({
+        ...prev,
+        [name]: processedValue,
+        maxLevel: newMaxLevel
+      }));
+      return;
+
+    }
+
+    // // For all other cases
+    // setFormData(prev => ({
+    //   ...prev,
+    //   [name]: processedValue,
+    // }));
 
     // Clear any previous errors when user makes changes
     if (error) setError(null);
   };
-
   // Update maxLevel when minLevel changes if needed
   useEffect(() => {
     if (formData.minLevel > formData.maxLevel) {
@@ -541,6 +555,90 @@ const EmployeeRoleCompetencyMapping = () => {
                           </div>
                         </div>
 
+                        <div className="mt-4">
+                          {/* Maximum Level Selection - Replaced dropdown with slider */}
+                          {/* Maximum Level Selection - Enhanced Slider */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <label className={`block text-sm font-medium ${!formData.competencyId ? 'text-gray-400' : 'text-gray-700'}`}>
+                                  Maximum Required Level:
+                                </label>
+                                <span className="inline-flex items-center justify-center h-6 w-8 rounded-full bg-blue-100 text-blue-800 text-sm font-semibold">
+                                  {formData.maxLevel}
+                                </span>
+                                <span className="text-red-500">*</span>
+                              </div>
+                              {!formData.competencyId && (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                  <svg className="mr-1 w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                  </svg>
+                                  Select competency first
+                                </span>
+                              )}
+                            </div>
+
+                            {formData.competencyId ? (
+                              <div className="mt-3 space-y-2">
+                                <div className="relative">
+                                  <div className="absolute top-1/2 left-0 right-0 h-1.5 -translate-y-1/2 bg-gradient-to-r from-blue-100 via-blue-300 to-blue-100 rounded-full">
+                                    <div
+                                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"
+                                      style={{ width: `${((formData.maxLevel - 1) / ((selectedCompetency?.maxLevel || 5) - 1)) * 100}%` }}
+                                    ></div>
+                                  </div>
+                                  <input
+                                    type="range"
+                                    name="maxLevel"
+                                    min="1"
+                                    max={selectedCompetency?.maxLevel || 5}
+                                    value={formData.maxLevel}
+                                    onChange={handleInputChange}
+                                    className="relative w-full h-2 bg-transparent appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-blue-600 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:ease-in-out hover:[&::-webkit-slider-thumb]:scale-110"
+                                  />
+                                </div>
+
+                                <div className="flex justify-between px-1">
+                                  {[...Array(selectedCompetency?.maxLevel || 5).keys()].map((_, i) => {
+                                    const level = i + 1;
+                                    const isActive = level <= formData.maxLevel;
+                                    return (
+                                      <button
+                                        key={level}
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, maxLevel: level }))}
+                                        className="flex-1 text-center group"
+                                      >
+                                        <div className={`mx-auto flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${isActive
+                                          ? 'bg-blue-600 text-white shadow-md'
+                                          : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                                          }`}>
+                                          <span className="text-sm font-medium">{level}</span>
+                                        </div>
+                                        {level === formData.maxLevel && (
+                                          <span className="block mt-1 text-xs font-medium text-blue-600">Selected</span>
+                                        )}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="mt-2 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 text-center">
+                                <svg
+                                  className="mx-auto h-8 w-8 text-gray-400"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                <p className="mt-1 text-sm text-gray-500">Please select a competency to set the required level</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
 
                         <div className="flex items-center">
                           <input
