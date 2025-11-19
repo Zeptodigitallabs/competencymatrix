@@ -255,14 +255,19 @@ const EmployeeRoleCompetencyMapping = () => {
         isActive: formData.isActive !== undefined ? formData.isActive : true, // Default to true if not provided
         isDeleted: false
       };
+
       const savedMapping = await RoleCompetencyService.saveRoleCompetencyMapping(payload);
+      if (savedMapping.isSuccess) {
+        // Update the UI with the saved mapping
+        fetchMappings();
+        showNotification(
+          editingMapping ? 'Mapping updated successfully' : 'Mapping added successfully',
+          'success'
+        );
 
-      // Update the UI with the saved mapping
-      fetchMappings();
-      showNotification(
-        editingMapping ? 'Mapping updated successfully' : 'Mapping added successfully'
-      );
-
+      } else {
+        showNotification(savedMapping.message, 'error');
+      }
       setIsModalOpen(false);
       setError(null);
     } catch (err) {
@@ -300,7 +305,11 @@ const EmployeeRoleCompetencyMapping = () => {
         maxLevel: newMaxLevel
       }));
       return;
-
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: processedValue,
+      }));
     }
 
     // // For all other cases
@@ -403,9 +412,9 @@ const EmployeeRoleCompetencyMapping = () => {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Competency
                 </th>
-                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Competency
-          </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Competency
+                </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
