@@ -38,7 +38,7 @@ const TeamCompetencyMatrix = ({ employees = [], competencies = [] }) => {
             <div className="text-sm text-gray-500">Overall Average</div>
             <div className="text-2xl font-bold text-indigo-600">{overallAverage}/5</div>
           </div>
-          <button className="px-3 py-1 text-sm border rounded hover:bg-gray-50">
+          <button className="px-3 py-1 text-sm border border-[#03045E] text-[#03045E] rounded hover:bg-[#03045E] hover:text-white transition-colors">
             View Full Matrix
           </button>
         </div>
@@ -65,7 +65,7 @@ const TeamCompetencyMatrix = ({ employees = [], competencies = [] }) => {
 
       {competencies.length > 5 && (
         <div className="mt-4 text-center">
-          <button className="text-sm text-indigo-600 hover:text-indigo-800">
+          <button className="text-sm text-[#03045E] hover:underline">
             + {competencies.length - 5} more competencies
           </button>
         </div>

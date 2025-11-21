@@ -227,13 +227,13 @@ const CompetencyModal = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="inline-flex justify-center py-2 px-4 border border-[#03045E] text-sm font-medium rounded-md text-[#03045E] bg-white hover:bg-[#03045E]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03045E]"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045E] hover:bg-[#03045E]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03045E]"
               >
                 {localCompetency.competencyId ? 'Update' : 'Create'} Competency
               </button>

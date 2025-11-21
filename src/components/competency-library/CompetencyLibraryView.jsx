@@ -134,7 +134,7 @@ function CompetencyLibraryView() {
         <h2 className="text-2xl font-semibold">Competency Library</h2>
         <button
           onClick={handleAddClick}
-          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-[#03045E] text-white rounded hover:bg-[#03045E]/90 transition-colors"
         >
           + Add Competency
         </button>
@@ -146,14 +146,14 @@ function CompetencyLibraryView() {
           <input
             type="text"
             placeholder="Search competencies..."
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#03045E] focus:border-transparent"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="w-full sm:w-48">
           <select
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#03045E] focus:border-transparent"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
@@ -204,7 +204,7 @@ function CompetencyLibraryView() {
                         {[1, 2, 3, 4, 5].map((level) => (
                           <div
                             key={`${competency.competencyId}-${level}`}
-                            className={`w-4 h-4 rounded-full ${level <= (competency.maxLevel || 5) ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                            className={`w-4 h-4 rounded-full ${level <= (competency.maxLevel || 5) ? 'bg-[#03045E]' : 'bg-gray-200'}`}
                             title={`Level ${level}`}
                           />
                         ))}
@@ -219,7 +219,7 @@ function CompetencyLibraryView() {
                       <div className="flex justify-end space-x-2">
                         <button
                           onClick={() => handleEditClick(competency)}
-                          className="text-indigo-600 hover:text-indigo-900"
+                          className="text-[#03045E] hover:opacity-80"
                           title="Edit"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

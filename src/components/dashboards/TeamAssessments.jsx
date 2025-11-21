@@ -30,7 +30,7 @@ const TeamAssessments = ({ employees = [], onSelectEmployee }) => {
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Team Assessments</h3>
-        <button className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+        <button className="px-3 py-1 text-sm bg-[#03045E] text-white rounded hover:bg-[#03045E]/90 transition-colors">
           New Assessment
         </button>
       </div>

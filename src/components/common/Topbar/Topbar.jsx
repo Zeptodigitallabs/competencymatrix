@@ -23,7 +23,7 @@ const Topbar = ({ onToggleSidebar }) => {
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleSidebar}
-          className="p-2 rounded hover:bg-gray-100"
+          className="p-2 rounded hover:bg-[#03045E]/10 text-[#03045E]"
           aria-label="Toggle sidebar"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -36,7 +36,7 @@ const Topbar = ({ onToggleSidebar }) => {
         <div className="text-sm text-gray-600">Organization: Acme Learning</div>
         <button
           onClick={handleLogout}
-          className="px-3 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
+          className="px-3 py-1 border border-[#03045E] text-[#03045E] rounded hover:bg-[#03045E] hover:text-white transition-colors"
         >
           Logout
         </button>

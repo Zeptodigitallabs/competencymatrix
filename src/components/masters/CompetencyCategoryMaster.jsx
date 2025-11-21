@@ -126,7 +126,7 @@ const CompetencyCategoryPage = () => {
         <h2 className="text-2xl font-semibold">Competency Categories</h2>
         <button
           onClick={handleAddClick}
-          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors flex items-center"
+          className="px-4 py-2 bg-[#03045E] text-white rounded hover:bg-[#03045E]/90 transition-colors flex items-center"
         >
           + Add Category
         </button>
@@ -140,7 +140,7 @@ const CompetencyCategoryPage = () => {
           </div>
           <input
             type="text"
-            className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md p-2 border"
+            className="focus:ring-[#03045E] focus:border-[#03045E] block w-full pl-10 sm:text-sm border-gray-300 rounded-md p-2 border"
             placeholder="Search categories..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -172,7 +172,7 @@ const CompetencyCategoryPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => handleEditClick(category)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
+                        className="text-[#03045E] hover:opacity-80 mr-4"
                       >
                         ✏️
                       </button>
@@ -224,21 +224,21 @@ const CompetencyCategoryPage = () => {
                           required
                           value={formData.categoryName}
                           onChange={handleInputChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#03045E] focus:border-[#03045E] sm:text-sm"
                         />
                       </div>
                       <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
                         <button
                           type="submit"
                           disabled={isLoading}
-                          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm disabled:opacity-50"
+                          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#03045E] text-base font-medium text-white hover:bg-[#03045E]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03045E] sm:col-start-2 sm:text-sm disabled:opacity-50"
                         >
                           {isLoading ? 'Saving...' : 'Save'}
                         </button>
                         <button
                           type="button"
                           onClick={() => setIsModalOpen(false)}
-                          className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
+                          className="mt-3 w-full inline-flex justify-center rounded-md border border-[#03045E] shadow-sm px-4 py-2 bg-white text-base font-medium text-[#03045E] hover:bg-[#03045E]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03045E] sm:mt-0 sm:col-start-1 sm:text-sm"
                         >
                           Cancel
                         </button>

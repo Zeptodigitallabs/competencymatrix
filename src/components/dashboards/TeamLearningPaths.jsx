@@ -34,10 +34,10 @@ const TeamLearningPaths = ({ employees = [], onSelectEmployee }) => {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Team Learning Paths</h3>
         <div className="flex gap-2">
-          <button className="px-3 py-1 text-sm border rounded hover:bg-gray-50">
+          <button className="px-3 py-1 text-sm border border-[#03045E] text-[#03045E] rounded hover:bg-[#03045E] hover:text-white transition-colors">
             View All
           </button>
-          <button className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+          <button className="px-3 py-1 text-sm bg-[#03045E] text-white rounded hover:bg-[#03045E]/90 transition-colors">
             Create Path
           </button>
         </div>
