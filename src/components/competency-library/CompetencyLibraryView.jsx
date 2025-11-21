@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import CompetencyModal from './CompetencyModal';
 import CompetencyService from '../../services/CompetencyService';
 import SearchInput from '../common/SearchInput/SearchInput';
+import Notification from '../common/Notification/Notification';
+
 
 function CompetencyLibraryView() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -10,7 +12,29 @@ function CompetencyLibraryView() {
   const [editingCompetency, setEditingCompetency] = useState(null);
   const [competencies, setCompetencies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+    // ... existing state ...
+  const [notification, setNotification] = useState({ 
+    show: false, 
+    message: '', 
+    type: 'info' 
+  });
+
+// Show notification function
+  const showNotification = (message, type = 'success', duration = 5000) => {
+    setNotification({ 
+      show: true, 
+      message, 
+      type 
+    });
+    
+    // Auto-dismiss after duration
+    if (duration > 0) {
+      const timer = setTimeout(() => {
+        setNotification(prev => ({ ...prev, show: false }));
+      }, duration);
+      return () => clearTimeout(timer);
+    }
+  };
 
   // Fetch competencies on component mount
   useEffect(() => {
@@ -24,7 +48,8 @@ function CompetencyLibraryView() {
       // Use the API response directly since it already has the correct field names
       setCompetencies(data);
     } catch (err) {
-      setError('Failed to load competencies');
+       const errorMsg = 'Failed to load competencies';
+      showNotification(errorMsg, 'error');
       console.error('Error fetching competencies:', err);
       // Optionally show a toast/notification to the user
     } finally {
@@ -56,12 +81,16 @@ function CompetencyLibraryView() {
       
       // After successful save, refresh the entire competencies list
       await fetchCompetencies();
-      
+       showNotification(
+        editingCompetency ? 'Competency updated successfully' : 'Competency created successfully',
+        'success'
+      );
     
       
       // Show success message
     } catch (err) {
-      setError('Failed to save competency');
+      const errorMsg = err.response?.data?.message || 'Failed to save competency';
+      showNotification(errorMsg, 'error');
       console.error('Error saving competency:', {
         error: err,
         message: err.message,
@@ -85,12 +114,11 @@ function CompetencyLibraryView() {
          // After successful save, refresh the entire competencies list
          await fetchCompetencies();
         // Show success message or notification
-        alert('Competency deleted successfully');
+        showNotification('Competency deleted successfully', 'success');
       } catch (err) {
-        // setError('Failed to delete competency');
+        const errorMsg = 'Failed to delete competency. Please try again.';
+        showNotification(errorMsg, 'error');
         console.error('Error deleting competency:', err);
-        // Show error message to the user
-        alert('Failed to delete competency. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -120,16 +148,17 @@ function CompetencyLibraryView() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="p-6 text-red-600">
-        {error}
-      </div>
-    );
-  }
-
   return (
     <div className="p-6">
+        {/* Add Notification component here */}
+      {notification.show && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+          duration={5000}
+        />
+      )}
       {/* Header with title and Add button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Competency Library</h2>
