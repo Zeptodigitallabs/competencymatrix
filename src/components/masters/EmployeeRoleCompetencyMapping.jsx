@@ -4,32 +4,7 @@ import EmployeeService from '../../services/EmployeeService';
 import CompetencyService from '../../services/CompetencyService';
 import { useSelector } from 'react-redux';
 import SearchInput from '../common/SearchInput/SearchInput';
-
-
-// Notification component for showing success/error messages
-const Notification = ({ message, type, onClose }) => (
-  <div className={`fixed top-4 right-4 p-4 rounded-md ${type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-    } shadow-lg z-50`}>
-    <div className="flex">
-      <div className="flex-shrink-0">
-        {type === 'success' ? '✅' : '⚠️'}
-      </div>
-      <div className="ml-3">
-        <p className="text-sm font-medium">{message}</p>
-      </div>
-      <div className="ml-4">
-        <button
-          type="button"
-          className="inline-flex rounded-md focus:outline-none"
-          onClick={onClose}
-        >
-          <span className="sr-only">Close</span>
-          <span className="text-gray-400 hover:text-gray-500">✕</span>
-        </button>
-      </div>
-    </div>
-  </div>
-);
+import Notification from '../common/Notification/Notification';
 
 const EmployeeRoleCompetencyMapping = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,7 +20,11 @@ const EmployeeRoleCompetencyMapping = () => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMapping, setEditingMapping] = useState(null);
-  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [notification, setNotification] = useState({ 
+    show: false, 
+    message: '', 
+    type: 'info' 
+  });
 
   const [formData, setFormData] = useState({
     roleId: '',
@@ -200,8 +179,11 @@ const EmployeeRoleCompetencyMapping = () => {
 
   // Show notification
   const showNotification = (message, type = 'success') => {
-    setNotification({ show: true, message, type });
-    setTimeout(() => setNotification(prev => ({ ...prev, show: false })), 5000);
+    setNotification({ 
+      show: true, 
+      message, 
+      type 
+    });
   };
 
   const handleAddClick = async () => {
