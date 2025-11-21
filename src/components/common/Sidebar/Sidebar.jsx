@@ -5,7 +5,7 @@ const NavItem = ({ label, active, onClick, icon: Icon }) => (
   <button
     onClick={onClick}
     className={`flex items-center gap-2 w-full px-4 py-2 text-left rounded-md transition-colors ${
-      active ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50'
+      active ? 'bg-white text-[#03045E] font-medium' : 'text-gray-200 hover:bg-black/20 hover:text-white'
     }`}
   >
     {Icon && <Icon className="w-5 h-5" />}
@@ -88,7 +88,7 @@ const Sidebar = ({ userRole }) => {
       return (
         <div key={item.id} className="space-y-1">
           <div 
-            className={`flex items-center justify-between rounded-md ${level > 0 ? 'pl-6' : ''} ${isItemActive ? 'bg-indigo-50' : ''}`}
+            className={`flex items-center justify-between rounded-md ${level > 0 ? 'pl-6' : ''} ${isItemActive ? 'bg-white/10' : 'hover:bg-black/20'}`}
             onClick={() => item.children ? toggleItem(item.id) : navigate(`/${userRole?.toLowerCase()}/${item.id}`)}
           >
             <NavItem
@@ -134,22 +134,22 @@ const Sidebar = ({ userRole }) => {
   };
 
   return (
-    <div className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
+    <div className="w-64 h-screen bg-[#03045E] text-white flex flex-col">
+      <div className="p-4 border-b border-indigo-700">
+        <h2 className="text-lg font-semibold text-white">Menu</h2>
       </div>
       <nav className="flex-1 p-4 overflow-y-auto">
         <div className="space-y-2">
           {renderNavItems(getNavItems())}
         </div>
       </nav>
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-indigo-700">
         <button
           onClick={() => {
             // Handle logout
             navigate('/login');
           }}
-          className="w-full flex items-center gap-2 px-4 py-2 text-left text-red-600 rounded-md hover:bg-red-50"
+          className="w-full flex items-center gap-2 px-4 py-2 text-left text-white hover:bg-indigo-800 rounded-md transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
