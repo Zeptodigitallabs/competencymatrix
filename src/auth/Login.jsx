@@ -3,31 +3,62 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { login, loadUser } from '../store/actions/authActions';
 import AlertDialog from '../components/common/AlertDialog/AlertDialog';
+import { LOGIN_SUCCESS } from '../store/actions/types';
+import { fetchUserInfo } from '../store/actions/userInfoActions';
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [formData, setFormData] = useState({
     username: '',
     password: '',
     isRemember: false
   });
-  
+
   const { isAuthenticated, loading, error } = useSelector(state => state.auth);
   const [alert, setAlert] = useState({
     message: '',
     type: 'error'
   });
-  
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
-  
+
+  // SSO Auto Login (Highest Priority)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const autoToken = params.get("authtoken");
+
+    if (autoToken) {
+
+      // Step 1: Save token immediately
+      sessionStorage.setItem("token", autoToken);
+      sessionStorage.setItem("cameFromTraining", "true");
+      // Step 2: Manually trigger login success (same as normal login)
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: { token: autoToken }
+      });
+
+      // Step 3: Now fetch full user info using your existing flow
+      dispatch(fetchUserInfo())
+        .then((userData) => {
+          navigate("/", { replace: true }); // redirect to dashboard
+        })
+        .catch((err) => {
+          alert("Session expired or invalid. Please login again.");
+          sessionStorage.clear();
+          navigate("/login");
+        });
+    }
+  }, [dispatch, navigate]); // RUN ONLY ONCE
+
   // Clear any existing errors on component mount
   useEffect(() => {
     return () => {
@@ -42,7 +73,7 @@ const Login = () => {
       // Ensure we have a string message to display
       let displayMessage = 'An error occurred';
       let alertType = 'error';
-      
+
       if (typeof error === 'string') {
         displayMessage = error;
       } else if (error && typeof error === 'object') {
@@ -50,7 +81,7 @@ const Login = () => {
         displayMessage = error.message || 'An error occurred';
         alertType = error.code === 'MULTI_LOGIN' ? 'custom_info' : 'error';
       }
-      
+
       setAlert({
         message: displayMessage,
         type: alertType
@@ -76,7 +107,7 @@ const Login = () => {
       ...prevState,
       message: ''
     }));
-    
+
     if (alert.type === 'custom_info') {
       // Call the same login function but with forceLogout = '1'
       logIN(formData.username, formData.password, '1');
@@ -88,14 +119,14 @@ const Login = () => {
       if (!username || !password) {
         throw new Error('Please enter both username and password');
       }
-      
+
       // Clear previous errors
       dispatch({ type: 'CLEAR_ERROR' });
-      
+
       // Dispatch login action
-      const result = await dispatch(login(username, password,forceLogout, formData.isRemember))
-      
- 
+      const result = await dispatch(login(username, password, forceLogout, formData.isRemember))
+
+
     } catch (error) {
       console.error('Login process error:', error);
     }

@@ -11,6 +11,7 @@ const Topbar = ({ onToggleSidebar }) => {
     try {
       // Dispatch the logout action and wait for it to complete
       await dispatch(logout());
+      sessionStorage.removeItem("cameFromTraining");
       // Navigate to login after successful logout
       navigate('/login');
     } catch (error) {
