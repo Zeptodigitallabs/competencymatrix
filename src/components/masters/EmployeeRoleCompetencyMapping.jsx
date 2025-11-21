@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import RoleCompetencyService from '../../services/RoleCompetencyService';
 import EmployeeService from '../../services/EmployeeService';
 import CompetencyService from '../../services/CompetencyService';
-// Add this import at the top of your file
 import { useSelector } from 'react-redux';
+import SearchInput from '../common/SearchInput/SearchInput';
 
 
 // Notification component for showing success/error messages
@@ -32,6 +32,7 @@ const Notification = ({ message, type, onClose }) => (
 );
 
 const EmployeeRoleCompetencyMapping = () => {
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Inside your component, before the handleSubmit function:
   const userInfo = useSelector(state => state.user?.userInfo);
@@ -57,7 +58,42 @@ const EmployeeRoleCompetencyMapping = () => {
   // Fetch data on component mount
   useEffect(() => {
     fetchMappings();
+    fetchRolesAndCompetencies();
   }, []);
+
+  // Filter mappings based on search term using only mappings array
+  const filteredMappings = useMemo(() => {
+    if (!searchTerm || !Array.isArray(mappings)) return mappings || [];
+    
+    const searchLower = searchTerm.toLowerCase().trim();
+    if (!searchLower) return mappings;
+    
+    return (mappings || []).filter(mapping => {
+      if (!mapping) return false;
+      
+      // Get role name directly from mapping if available, otherwise use empty string
+      const roleName = (mapping.empRoleName || mapping.roleName || '').toLowerCase();
+      const competencyName = (mapping.competencyName || '').toLowerCase();
+      const minLevel = mapping.minLevel?.toString() || '';
+      const maxLevel = mapping.maxLevel?.toString() || '';
+      
+      // Search in all relevant fields with partial matching
+      const searchInRole = searchLower.split(' ').some(term => 
+        term && roleName.includes(term)
+      );
+
+      const searchInCompetency = searchLower.split(' ').some(term => 
+        term && competencyName.includes(term)
+      );
+
+      return (
+        searchInRole ||
+        searchInCompetency ||
+        minLevel.includes(searchTerm) ||
+        maxLevel.includes(searchTerm)
+      );
+    });
+  }, [mappings, searchTerm]);
 
   // Fetch role-competency mappings
   const fetchMappings = async () => {
@@ -383,22 +419,25 @@ const EmployeeRoleCompetencyMapping = () => {
         />
       )}
 
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Role Competency Mapping</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage the relationship between roles and required competencies
-          </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h2 className="text-2xl font-semibold">Role Competency Mapping</h2>
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3">
+          <SearchInput
+            placeholder="Search mappings..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 max-w-md"
+          />
+          <button
+            onClick={handleAddClick}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#03045E] hover:bg-[#03045E]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03045E]"
+          >
+            <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Add Mapping
+          </button>
         </div>
-        <button
-          onClick={handleAddClick}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#03045E] hover:bg-[#03045E]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03045E]"
-        >
-          <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Add Mapping
-        </button>
       </div>
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
@@ -424,8 +463,8 @@ const EmployeeRoleCompetencyMapping = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {mappings.length > 0 ? (
-                mappings.map((mapping, index) => (
+              {filteredMappings.length > 0 ? (
+                filteredMappings.map((mapping, index) => (
                   <tr key={`${mapping.id}-${mapping.competencyId}-${index}`}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {mapping.empRoleName}
@@ -436,7 +475,6 @@ const EmployeeRoleCompetencyMapping = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {mapping.maxLevel}
                     </td>
-
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${mapping.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {mapping.isActive ? 'Active' : 'Inactive'}
@@ -482,7 +520,7 @@ const EmployeeRoleCompetencyMapping = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
                     No role-competency mappings found. Click "Add Mapping" to create one.
                   </td>
                 </tr>

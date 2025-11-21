@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CompetencyCategoriesService from '../../services/CompetencyCategoriesService';
 import { store } from '../../store';
+import SearchInput from '../common/SearchInput/SearchInput';
 
 const CompetencyCategoryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -138,12 +139,11 @@ const CompetencyCategoryPage = () => {
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <span className="text-gray-400">🔍</span>
           </div>
-          <input
-            type="text"
-            className="focus:ring-[#03045E] focus:border-[#03045E] block w-full pl-10 sm:text-sm border-gray-300 rounded-md p-2 border"
+          <SearchInput
             placeholder="Search categories..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 max-w-md"
           />
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CompetencyModal from './CompetencyModal';
 import CompetencyService from '../../services/CompetencyService';
+import SearchInput from '../common/SearchInput/SearchInput';
 
 function CompetencyLibraryView() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -143,13 +144,12 @@ function CompetencyLibraryView() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="flex-1 max-w-md">
-          <input
-            type="text"
-            placeholder="Search competencies..."
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#03045E] focus:border-transparent"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+            <SearchInput
+              placeholder="Search competencies..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 max-w-md"
+            />
         </div>
         <div className="w-full sm:w-48">
           <select

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import EmployeeService from '../../services/EmployeeService';
 import { store } from '../../store';
+import SearchInput from '../common/SearchInput/SearchInput';
 
 // Loading spinner component
 const LoadingSpinner = () => (
@@ -148,13 +149,12 @@ const EmployeeRoleMaster = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h2 className="text-2xl font-semibold">Employee Roles</h2>
         <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            placeholder="Search roles..."
-            className="border rounded px-3 py-2 w-full sm:w-64"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+            <SearchInput
+              placeholder="Search roles..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 max-w-md"
+            />
           <button
             onClick={handleAddClick}
             className="px-4 py-2 bg-[#03045E] text-white rounded hover:bg-[#03045E]/90 transition-colors flex items-center justify-center gap-2"
