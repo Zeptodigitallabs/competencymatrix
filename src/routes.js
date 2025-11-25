@@ -25,6 +25,7 @@ import MyLearningPage from './pages/learner/MyLearningPage';
 
 // Shared Pages
 import EmployeesPage from './pages/shared/EmployeesPage';
+import DepartmentMaster from './components/masters/DepartmentMaster';
 
 // Error Page
 const NotFoundPage = () => (
@@ -76,37 +77,41 @@ export const renderRoutes = (props) => {
       {userRole === 'InstitutionAdmin' && (
         <Route path="/institutionadmin">
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route 
-            path="dashboard" 
-            element={renderWithLayout(AdminDashboard, adminProps, 'InstitutionAdmin')} 
+          <Route
+            path="dashboard"
+            element={renderWithLayout(AdminDashboard, adminProps, 'InstitutionAdmin')}
           />
-          <Route 
-            path="competency-library" 
-            element={renderWithLayout(CompetencyLibraryPage, adminProps, 'InstitutionAdmin')} 
+          <Route
+            path="competency-library"
+            element={renderWithLayout(CompetencyLibraryPage, adminProps, 'InstitutionAdmin')}
           />
-          <Route 
-            path="reports" 
-            element={renderWithLayout(ReportsPage, adminProps, 'InstitutionAdmin')} 
+          <Route
+            path="reports"
+            element={renderWithLayout(ReportsPage, adminProps, 'InstitutionAdmin')}
           />
-          <Route 
-            path="employees" 
-            element={<EmployeesPage {...commonProps} />} 
+          <Route
+            path="employees"
+            element={<EmployeesPage {...commonProps} />}
           />
-          <Route 
-            path="competency-category" 
-            element={renderWithLayout(CompetencyCategoryMaster, adminProps, 'InstitutionAdmin')} 
+          <Route
+            path="competency-category"
+            element={renderWithLayout(CompetencyCategoryMaster, adminProps, 'InstitutionAdmin')}
           />
-          <Route 
-            path="competency" 
-            element={renderWithLayout(CompetencyMaster, adminProps, 'InstitutionAdmin')} 
+          <Route
+            path="competency"
+            element={renderWithLayout(CompetencyMaster, adminProps, 'InstitutionAdmin')}
           />
-          <Route 
-            path="employee-role" 
-            element={renderWithLayout(EmployeeRoleMaster, adminProps, 'InstitutionAdmin')} 
+          <Route
+            path="employee-role"
+            element={renderWithLayout(EmployeeRoleMaster, adminProps, 'InstitutionAdmin')}
           />
-          <Route 
-            path="role-mapping" 
-            element={renderWithLayout(EmployeeRoleCompetencyMapping, adminProps, 'InstitutionAdmin')} 
+          <Route
+            path="role-mapping"
+            element={renderWithLayout(EmployeeRoleCompetencyMapping, adminProps, 'InstitutionAdmin')}
+          />
+          <Route
+            path="department-master"
+            element={renderWithLayout(DepartmentMaster, adminProps, 'InstitutionAdmin')}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
@@ -116,25 +121,25 @@ export const renderRoutes = (props) => {
       {userRole === 'Manager' && (
         <Route path="/manager">
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route 
-            path="dashboard" 
-            element={renderWithLayout(ManagerDashboardPage, commonProps, 'Manager')} 
+          <Route
+            path="dashboard"
+            element={renderWithLayout(ManagerDashboardPage, commonProps, 'Manager')}
           />
-          <Route 
-            path="team-matrix" 
-            element={renderWithLayout(TeamMatrixPage, commonProps, 'Manager')} 
+          <Route
+            path="team-matrix"
+            element={renderWithLayout(TeamMatrixPage, commonProps, 'Manager')}
           />
-          <Route 
-            path="team-assessments" 
-            element={renderWithLayout(TeamAssessmentsPage, commonProps, 'Manager')} 
+          <Route
+            path="team-assessments"
+            element={renderWithLayout(TeamAssessmentsPage, commonProps, 'Manager')}
           />
-          <Route 
-            path="team-learning" 
-            element={renderWithLayout(TeamLearningPage, commonProps, 'Manager')} 
+          <Route
+            path="team-learning"
+            element={renderWithLayout(TeamLearningPage, commonProps, 'Manager')}
           />
-          <Route 
-            path="employees" 
-            element={<EmployeesPage {...commonProps} />} 
+          <Route
+            path="employees"
+            element={<EmployeesPage {...commonProps} />}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
@@ -144,21 +149,21 @@ export const renderRoutes = (props) => {
       {userRole === 'Learner' && (
         <Route path="/learner">
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route 
-            path="dashboard" 
-            element={renderWithLayout(LearnerDashboard, commonProps, 'Learner')} 
+          <Route
+            path="dashboard"
+            element={renderWithLayout(LearnerDashboard, commonProps, 'Learner')}
           />
-          <Route 
-            path="my-profile" 
-            element={renderWithLayout(MyProfilePage, {}, 'Learner')} 
+          <Route
+            path="my-profile"
+            element={renderWithLayout(MyProfilePage, {}, 'Learner')}
           />
-          <Route 
-            path="my-assessments" 
-            element={renderWithLayout(MyAssessmentsPage, {}, 'Learner')} 
+          <Route
+            path="my-assessments"
+            element={renderWithLayout(MyAssessmentsPage, {}, 'Learner')}
           />
-          <Route 
-            path="my-learning" 
-            element={renderWithLayout(MyLearningPage, {}, 'Learner')} 
+          <Route
+            path="my-learning"
+            element={renderWithLayout(MyLearningPage, {}, 'Learner')}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

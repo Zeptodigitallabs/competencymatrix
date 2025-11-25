@@ -72,6 +72,7 @@ const Sidebar = ({ userRole }) => {
           { id: 'competency-category', label: 'Competency Categories' },
           // { id: 'competency', label: 'Competencies' },
           { id: 'employee-role', label: 'Employee Roles' },
+          { id: 'department-master', label: 'Department Master' },
           // { id: 'role-competency-mapping', label: 'Role Competency Mappings' },
         ]
       },
