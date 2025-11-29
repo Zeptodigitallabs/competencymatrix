@@ -8,6 +8,8 @@ import { AdminRoute, ManagerRoute, EmployeeRoute } from './auth/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import AuthService from './services/AuthService/auth.service';
 import { renderRoutes } from './routes';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const { store, persistor } = storeConfig;
 
@@ -16,6 +18,17 @@ const App = () => (
   <ErrorBoundary>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
+         <ToastContainer 
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
         <Router>
           <AppRoutes />
         </Router>

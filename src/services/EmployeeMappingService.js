@@ -41,7 +41,7 @@ const EmployeeMappingService = {
                 centerId: params.centerId || 0,
                 batchId: params.batchId || '',
                 pageNumber: params.pageNumber || 1,
-                pageSize: params.pageSize || 20
+                pageSize: params.pageSize || 1000
             });
 
             return response.data || { data: [], totalCount: 0 };
