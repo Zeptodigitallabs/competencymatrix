@@ -216,7 +216,7 @@ const ReportsView = ({ employees, roles, competencies }) => {
         <div className="flex space-x-2">
           <button
             onClick={handleExport}
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 flex items-center"
+            className="px-4 py-2 bg-[#03045E] text-white rounded hover:bg-[#03045E]/90 flex items-center"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -240,8 +240,8 @@ const ReportsView = ({ employees, roles, competencies }) => {
               onClick={() => setActiveTab(tab.id)}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === tab.id
-                  ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-[#03045E] text-[#03045E] font-medium'
+                  : 'border-transparent text-gray-500 hover:text-[#03045E] hover:border-[#03045E]/30'
               }`}
             >
               {tab.name}
@@ -257,7 +257,7 @@ const ReportsView = ({ employees, roles, competencies }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
             <select
-              className="border rounded-md px-3 py-2 text-sm w-48"
+              className="border rounded-md px-3 py-2 text-sm w-48 focus:ring-2 focus:ring-[#03045E] focus:border-[#03045E]"
               value={filters.department}
               onChange={(e) => setFilters({ ...filters, department: e.target.value })}
             >
@@ -271,7 +271,7 @@ const ReportsView = ({ employees, roles, competencies }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Level</label>
             <select
-              className="border rounded-md px-3 py-2 text-sm w-48"
+              className="border rounded-md px-3 py-2 text-sm w-48 focus:ring-2 focus:ring-[#03045E] focus:border-[#03045E]"
               value={filters.level}
               onChange={(e) => setFilters({ ...filters, level: e.target.value })}
             >
