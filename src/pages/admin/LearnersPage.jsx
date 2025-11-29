@@ -78,40 +78,41 @@ const LearnersPage = () => {
     }));
   };
 
-  const handleOpenManageTeam = (userId, userName) => {
-    setManageTeamDialog({
-      ...manageTeamDialog,
-      open: true,
-      userId,
-      userName,
-      loading: true,
-      selectedMembers: []
+const handleOpenManageTeam = (userId, userName) => {
+  setManageTeamDialog({
+    ...manageTeamDialog,
+    open: true,
+    userId,
+    userName,
+    loading: true,
+    teamMembers: [],
+    selectedMembers: []
+  });
+  
+  // Fetch team members using getTeamMembers
+  EmployeeMappingService.getTeamMembers(userId)
+    .then(response => {
+      const members = Array.isArray(response.data) ? response.data : [];
+      const selected = members
+        .filter(member => member.isSelected)
+        .map(member => member.userId);
+        
+      setManageTeamDialog(prev => ({
+        ...prev,
+        teamMembers: members,
+        selectedMembers: selected,
+        loading: false
+      }));
+    })
+    .catch(error => {
+      console.error('Error fetching team members:', error);
+      toast.error('Failed to load team members');
+      setManageTeamDialog(prev => ({
+        ...prev,
+        loading: false
+      }));
     });
-    
-    // Fetch team members for this user
-    EmployeeMappingService.getLearnerListByUserId(userId)
-      .then(response => {
-        const members = Array.isArray(response) ? response : (response.data || []);
-        const selected = members
-          .filter(member => member.isTeamMember)
-          .map(member => member.userId);
-          
-        setManageTeamDialog(prev => ({
-          ...prev,
-          teamMembers: members,
-          selectedMembers: selected,
-          loading: false
-        }));
-      })
-      .catch(error => {
-        console.error('Error fetching team members:', error);
-        setManageTeamDialog(prev => ({
-          ...prev,
-          loading: false
-        }));
-        toast.error('Failed to load team members');
-      });
-  };
+};
 
   const handleCloseManageTeam = () => {
     setManageTeamDialog({
