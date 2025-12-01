@@ -11,7 +11,7 @@ const EmployeeMappingService = {
                 throw new Error('User institution information not available');
             }
 
-            const response = await axiosConfig().post('/User/GetUserList', {
+            const response = await axiosConfig().post('/CompetencyMatrix/GetCompLearnerList', {
                 institutionId,
                 centerId: params.centerId || 0,
                 batchId: params.batchId || '',
