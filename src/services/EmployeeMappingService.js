@@ -15,8 +15,9 @@ const EmployeeMappingService = {
                 institutionId,
                 centerId: params.centerId || 0,
                 batchId: params.batchId || '',
+                search: params.searchTerm || '',
                 pageNumber: params.pageNumber || 1,
-                pageSize: params.pageSize || 20
+                pageSize: params.pageSize || 1000
             });
 
             return response.data || { data: [], totalCount: 0 };
@@ -96,8 +97,19 @@ const EmployeeMappingService = {
             console.error('Error fetching team members:', error);
             throw error;
         }
-    }
+    },
 
+    removeManager: async (userId) => {
+        try {
+            const response = await axiosConfig().post('/CompetencyMatrix/RemoveManager', {
+                UserId: userId
+            });
+            return response.data || { success: true, message: 'Manager removed successfully' };
+        } catch (error) {
+            console.error('Error removing manager:', error);
+            throw error;
+        }
+    }
 };
 
 export default EmployeeMappingService;

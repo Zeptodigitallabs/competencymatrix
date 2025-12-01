@@ -6,7 +6,7 @@ import AppLayout from './components/layout/AppLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CompetencyLibraryPage from './pages/admin/CompetencyLibraryPage';
 import ReportsPage from './pages/admin/ReportsPage';
-import LearnersPage from './pages/admin/LearnersPage';
+import TeamMapping from './pages/admin/TeamMapping';
 import CompetencyCategoryMaster from './components/masters/CompetencyCategoryMaster';
 import CompetencyMaster from './components/masters/CompetencyMaster';
 import EmployeeRoleMaster from './components/masters/EmployeeRoleMaster';
@@ -116,7 +116,7 @@ export const renderRoutes = (props) => {
           />
           <Route
             path="learners"
-            element={renderWithLayout(LearnersPage, adminProps, 'InstitutionAdmin')}
+            element={renderWithLayout(TeamMapping, adminProps, 'InstitutionAdmin')}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
