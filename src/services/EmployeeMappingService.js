@@ -109,6 +109,27 @@ const EmployeeMappingService = {
             console.error('Error removing manager:', error);
             throw error;
         }
+    },
+    
+    addManager: async (userId, managerUserId) => {
+        try {
+            if (!userId) {
+                throw new Error('User ID is required');
+            }
+            if (!managerUserId) {
+                throw new Error('Manager user ID is required');
+            }
+
+            const response = await axiosConfig().post('/CompetencyMatrix/AddManager', {
+                UserId: userId,
+                MGRUserId: managerUserId
+            });
+
+            return response.data || { success: true, message: 'Manager added successfully' };
+        } catch (error) {
+            console.error('Error adding manager:', error);
+            throw error;
+        }
     }
 };
 
