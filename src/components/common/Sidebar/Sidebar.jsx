@@ -63,7 +63,7 @@ const Sidebar = ({ userRole }) => {
 
     const adminItems = [
       { id: 'competency-library', label: 'Competency Management' },
-      { id: 'learners', label: 'Teams' },
+      { id: 'learners', label: 'Teams Mapping' },
       { id: 'role-mapping', label: 'Role Mappings' },
       { id: 'reports', label: 'Reports & Analytics' },
       {

@@ -46,12 +46,20 @@ const TeamMapping = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (!searchTerm.trim()) {
-      toast.warning('Please enter a search term');
+      // Clear results when search is empty
+      setLearners([]);
+      setHasSearched(false);
       return;
     }
     setIsSearching(true);
     setHasSearched(true);
     fetchLearners(searchTerm);
+  };
+  
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setLearners([]);
+    setHasSearched(false);
   };
 
   const handleRemoveManager = async (userId) => {
@@ -273,23 +281,40 @@ const TeamMapping = () => {
         </div>
       )}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h2 className="text-2xl font-semibold">Team Mapping</h2>
+        <h2 className="text-2xl font-semibold">Teams Mapping</h2>
       </div>
       
       <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
         <div className="p-4">
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name, email, or department..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <form onSubmit={handleSearch} className="flex-1 flex gap-2">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by name, email, or department..."
+                className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
             <button
               type="submit"
-              disabled={isSearching}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+              disabled={isSearching || !searchTerm.trim()}
+              className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                searchTerm.trim()
+                  ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              }`}
             >
               {isSearching ? 'Searching...' : 'Search'}
             </button>
