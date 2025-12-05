@@ -44,8 +44,7 @@ const DashboardService = {
       const response = await axiosConfig().get(
         `CompetencyMatrix/GetTopCompetencyGaps?institutionId=${institutionId}`
       );
-      
-      return Array.isArray(response.data) ? response.data : [];
+      return response.data || {};
     } catch (error) {
       console.error('Error fetching top competency gaps:', error);
       throw error;
@@ -70,7 +69,7 @@ const DashboardService = {
         `CompetencyMatrix/GetTopAchievedCompetencies?institutionId=${institutionId}`
       );
       
-      return Array.isArray(response.data) ? response.data : [];
+      return response.data || {};
     } catch (error) {
       console.error('Error fetching top achieved competencies:', error);
       throw error;
@@ -95,7 +94,7 @@ const DashboardService = {
         `CompetencyMatrix/GetCompetencyWiseSummary?institutionId=${institutionId}`
       );
       
-      return Array.isArray(response.data) ? response.data : [];
+          return response.data || {};
     } catch (error) {
       console.error('Error fetching competency-wise summary:', error);
       throw error;
