@@ -5,7 +5,7 @@ import AppLayout from './components/layout/AppLayout';
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CompetencyLibraryPage from './pages/admin/CompetencyLibraryPage';
-import ReportsPage from './pages/admin/ReportsPage';
+import ReportsViewV1 from './components/reports/ReportsViewV1';
 import TeamMapping from './pages/admin/TeamMapping';
 import CompetencyCategoryMaster from './components/masters/CompetencyCategoryMaster';
 import CompetencyMaster from './components/masters/CompetencyMaster';
@@ -89,7 +89,7 @@ export const renderRoutes = (props) => {
           />
           <Route
             path="reports"
-            element={renderWithLayout(ReportsPage, adminProps, 'InstitutionAdmin')}
+            element={renderWithLayout(ReportsViewV1, adminProps, 'InstitutionAdmin')}
           />
           <Route
             path="employees"
