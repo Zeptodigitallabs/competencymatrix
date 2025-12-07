@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { logout } from '../../../store/actions/authActions';
 
 const NavItem = ({ label, active, onClick, icon: Icon }) => (
@@ -19,6 +20,7 @@ const Sidebar = ({ userRole }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const isManager = useSelector(state => state.user.isManager || false);
   // Get current view from URL
   const getCurrentView = () => {
     const pathParts = location.pathname.split('/').filter(Boolean);
@@ -36,7 +38,7 @@ const Sidebar = ({ userRole }) => {
   const goBackToTraining = () => {
     const trainingToken = sessionStorage.getItem('token');
     if (trainingToken) {
-     // window.open(`https://localhost:44381/RedirectFromCBL?authtoken=${trainingToken}`, "_blank");
+      // window.open(`https://localhost:44381/RedirectFromCBL?authtoken=${trainingToken}`, "_blank");
       window.location.href = `https://lmsapi.zeptolearn.com/RedirectFromCBL?authtoken=${trainingToken}`;
     } else {
       window.location.href = 'https://lmsapi.zeptolearn.com';
@@ -86,7 +88,7 @@ const Sidebar = ({ userRole }) => {
     ];
 
     const employeeItems = [
-      { id: 'team-competency', label: 'My Team Competency' },
+      ...(isManager ? [{ id: 'team-competency', label: 'My Team Competency' }] : []),
       // { id: 'my-assessments', label: 'My Assessments' },
       // { id: 'my-learning', label: 'My Learning' },
     ];

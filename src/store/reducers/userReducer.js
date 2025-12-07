@@ -6,7 +6,8 @@ const initialState = {
   error: null,
   changingPassword: false,
   passwordChanged: false,
-  profilePicture: null
+  profilePicture: null,
+  isManager: false
 };
 
 const userReducer = (state = initialState, action) => {
@@ -27,6 +28,12 @@ const userReducer = (state = initialState, action) => {
         userInfo: action.payload,
         loading: false,
         error: null
+      };
+
+    case actionTypes.SET_IS_MANAGER:
+      return {
+        ...state,
+        isManager: action.payload
       };
 
     case actionTypes.FETCH_USERINFO_FAILED:

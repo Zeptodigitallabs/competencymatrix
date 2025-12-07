@@ -11,6 +11,9 @@ export const POST_CHANGE_PASSWORD_FAILED = 'POST_CHANGE_PASSWORD_FAILED';
 // Profile Picture
 export const SET_PROFILE_PICTURE = 'SET_PROFILE_PICTURE';
 
+// Manager Status
+export const SET_IS_MANAGER = 'SET_IS_MANAGER';
+
 // Auth
 export const AUTH_ERROR = 'AUTH_ERROR';
 export const USER_LOGOUT = 'USER_LOGOUT';

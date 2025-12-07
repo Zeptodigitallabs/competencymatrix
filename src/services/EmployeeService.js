@@ -81,6 +81,19 @@ const EmployeeService = {
     }
   },
 
+  async checkIfManager() {
+    try {
+      const response = await this.getTeamReport();
+      return {
+        isManager: response.isSuccess && response.data && response.data.length > 0,
+        teamData: response.data || []
+      };
+    } catch (error) {
+      console.error('Error checking manager status:', error);
+      return { isManager: false, teamData: [] };
+    }
+  },
+  
   // View evidence for a specific user
   async viewEvidence(userId) {
     try {

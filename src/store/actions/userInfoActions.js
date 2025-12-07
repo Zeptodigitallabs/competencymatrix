@@ -1,6 +1,7 @@
 import * as actionTypes from './actionTypes';
 import axios from '../../util/axios';
 import UserService from '../../services/UserService/user.service';
+import EmployeeService from '../../services/EmployeeService';
 
 // Action Creators
 export const fetchUserInfoStart = () => ({
@@ -30,9 +31,14 @@ export const fetchUserInfo = () => {
     try {
       dispatch(fetchUserInfoStart());
       const userData = await UserService.getUserDetails();
+      console.log(userData,"userdataa");
       
       if (userData.isSuccess === false) {
         throw new Error(userData.message || 'Failed to fetch user info');
+      }
+       
+      if(userData.userType === "Learner"){
+        await dispatch(checkManagerStatus());
       }
       
       dispatch(setUserInfo(userData));
@@ -78,6 +84,12 @@ export const changePassword = (oldPassword, newPassword) => {
   };
 };
 
+// Manager Status Actions
+export const setIsManager = (isManager) => ({
+  type: actionTypes.SET_IS_MANAGER,
+  payload: isManager
+});
+
 // Profile Picture Actions
 export const setProfilePicture = (profilePic) => ({
   type: actionTypes.SET_PROFILE_PICTURE,
@@ -101,3 +113,17 @@ export const uploadProfilePicture = (file) => {
 export const logoutUser = () => ({
   type: actionTypes.USER_LOGOUT
 });
+
+export const checkManagerStatus = () => {
+  return async (dispatch) => {
+    try {
+      const { isManager } = await EmployeeService.checkIfManager();
+      dispatch(setIsManager(isManager));
+      return isManager;
+    } catch (error) {
+      console.error('Error checking manager status:', error);
+      dispatch(setIsManager(false));
+      return false;
+    }
+  };
+};
