@@ -27,6 +27,7 @@ import MyLearningPage from './pages/learner/MyLearningPage';
 // Shared Pages
 import EmployeesPage from './pages/shared/EmployeesPage';
 import DepartmentMaster from './components/masters/DepartmentMaster';
+import TeamCompetency from './pages/learner/TeamCompetency';
 
 // Error Page
 const NotFoundPage = () => (
@@ -159,8 +160,8 @@ export const renderRoutes = (props) => {
             element={renderWithLayout(LearnerDashboard, commonProps, 'Learner')}
           />
           <Route
-            path="my-profile"
-            element={renderWithLayout(MyProfilePage, {}, 'Learner')}
+            path="team-competency"
+            element={renderWithLayout(TeamCompetency, {}, 'Learner')}
           />
           <Route
             path="my-assessments"

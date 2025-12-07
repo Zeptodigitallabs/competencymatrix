@@ -86,9 +86,9 @@ const Sidebar = ({ userRole }) => {
     ];
 
     const employeeItems = [
-      { id: 'my-profile', label: 'My Profile' },
-      { id: 'my-assessments', label: 'My Assessments' },
-      { id: 'my-learning', label: 'My Learning' },
+      { id: 'team-competency', label: 'My Team Competency' },
+      // { id: 'my-assessments', label: 'My Assessments' },
+      // { id: 'my-learning', label: 'My Learning' },
     ];
 
     switch (userRole?.toLowerCase()) {
