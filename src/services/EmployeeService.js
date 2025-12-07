@@ -57,6 +57,39 @@ const EmployeeService = {
       console.error('Error deleting employee role:', error);
       throw error;
     }
+  },
+
+  // Get logged-in employee's competency profile
+  async getMyCompetencyProfile() {
+    try {
+      const response = await axiosConfig().get('CompetencyMatrix/MyCompetencyProfile');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching my competency profile:', error);
+      throw error;
+    }
+  },
+
+  // Get team report for the logged-in manager
+  async getTeamReport() {
+    try {
+      const response = await axiosConfig().get('CompetencyMatrix/GetTeamReport');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching team report:', error);
+      throw error;
+    }
+  },
+
+  // View evidence for a specific user
+  async viewEvidence(userId) {
+    try {
+      const response = await axiosConfig().get(`CompetencyMatrix/ViewEvidence?userId=${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user evidence:', error);
+      throw error;
+    }
   }
 };
 
