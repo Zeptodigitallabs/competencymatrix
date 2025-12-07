@@ -9,7 +9,6 @@ export const fetchUserInfoStart = () => ({
 });
 
 export const setUserInfo = (userInfo) => {
-  console.log("userInfo",userInfo);
   return {
     type: actionTypes.SET_USERINFO,
     payload: userInfo
@@ -31,8 +30,6 @@ export const fetchUserInfo = () => {
     try {
       dispatch(fetchUserInfoStart());
       const userData = await UserService.getUserDetails();
-      console.log(userData,"userdataa");
-      
       if (userData.isSuccess === false) {
         throw new Error(userData.message || 'Failed to fetch user info');
       }
