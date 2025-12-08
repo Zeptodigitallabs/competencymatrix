@@ -134,7 +134,7 @@ const DashboardView = () => {
             <KPI 
               key={index}
               title={item.label} 
-              value={item.value} 
+              value={Number(item.value) < 0 ? 0 : item.value}
               sub={getSubtitle(item.label)} 
             />
           ))}
