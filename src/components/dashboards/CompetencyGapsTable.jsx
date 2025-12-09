@@ -32,7 +32,7 @@ const CompetencyGapsTable = ({ data = [], loading, error }) => {
                   Progress
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Gap
+                  Average Gap
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Users
@@ -51,11 +51,11 @@ const CompetencyGapsTable = ({ data = [], loading, error }) => {
                       <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
                         <div 
                           className="bg-blue-600 h-2.5 rounded-full" 
-                          style={{ width: `${getProgressPercentage(gap.achievedLevel, gap.maxLevel)}%` }}
+                          style={{ width: `${getProgressPercentage(gap.achievedLevel, gap.usersWithThisCompetency)}%` }}
                         ></div>
                       </div>
                       <span className="text-xs text-gray-500">
-                        {gap.achievedLevel}/{gap.maxLevel}
+                        {gap.achievedLevel}/{gap.usersWithThisCompetency}
                       </span>
                     </div>
                   </td>
