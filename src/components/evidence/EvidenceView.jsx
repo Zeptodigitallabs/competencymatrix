@@ -46,8 +46,8 @@ const EvidenceView = () => {
     }
   }, [userId]);
 
-  const renderCompetencyCard = (competency) => (
-    <div key={`${competency.competencyName}-${competency.categoryName}`} 
+  const renderCompetencyCard = (competency, index) => (
+     <div key={`${competency.competencyName}-${competency.categoryName}-${index}`}
          className="bg-white p-4 rounded-lg shadow mb-4">
       <h4 className="font-medium text-lg">{competency.competencyName}</h4>
       <p className="text-gray-600 text-sm">Category: {competency.categoryName}</p>
@@ -117,12 +117,12 @@ const EvidenceView = () => {
       <div className="space-y-4">
         {activeTab === 'achieved' ? (
           evidenceData.achieved.length > 0 ? (
-            evidenceData.achieved.map(renderCompetencyCard)
+            evidenceData.achieved.map((item, idx) => renderCompetencyCard(item, idx))
           ) : (
             <p className="text-gray-500">No achieved competencies found.</p>
           )
         ) : evidenceData.inProgress.length > 0 ? (
-          evidenceData.inProgress.map(renderCompetencyCard)
+          evidenceData.inProgress.map((item, idx) => renderCompetencyCard(item, idx))
         ) : (
           <p className="text-gray-500">No in-progress competencies found.</p>
         )}
