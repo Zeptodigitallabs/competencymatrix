@@ -28,6 +28,7 @@ import MyLearningPage from './pages/learner/MyLearningPage';
 import EmployeesPage from './pages/shared/EmployeesPage';
 import DepartmentMaster from './components/masters/DepartmentMaster';
 import TeamCompetency from './pages/learner/TeamCompetency';
+import EvidenceView from './components/evidence/EvidenceView';
 
 // Error Page
 const NotFoundPage = () => (
@@ -75,6 +76,11 @@ export const renderRoutes = (props) => {
 
   return (
     <Routes>
+      {/* Shared Routes */}
+      <Route
+        path="/evidence/:userId"
+        element={renderWithLayout(EvidenceView, {}, userRole)}
+      />
       {/* Admin Routes */}
       {userRole === 'InstitutionAdmin' && (
         <Route path="/institutionadmin">
