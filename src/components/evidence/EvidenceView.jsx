@@ -57,9 +57,10 @@ const EvidenceView = () => {
         <h5 className="font-medium">Course Evidence:</h5>
         {competency.courseEvidence.map((course, idx) => (
           <div key={idx} className="ml-4 mt-1 p-2 bg-gray-50 rounded">
-            <p>Course: {course.courseName} ({course.courseCode})</p>
-            <p>Achieved Level: {course.achievedLevel}</p>
-            <p>Achieved On: {new Date(course.achievedOn).toLocaleDateString()}</p>
+            <p className="font-medium">{course.courseName} ({course.courseCode})</p>
+            <p className="text-sm">Achieved Level: {course.achievedLevel}</p>
+            <p className="text-sm">Start Date: {course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A'}</p>
+            <p className="text-sm">Completion Date: {course.completionDate ? new Date(course.completionDate).toLocaleDateString() : 'In Progress'}</p>
           </div>
         ))}
       </div>
