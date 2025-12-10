@@ -42,19 +42,19 @@ const AdminReport = () => {
   };
 
   const handleSearch = async () => {
-    if (!filters.employeeRoleId || !filters.departmentId) {
-      toast.warning('Please select both Employee Role and Department');
-      return;
-    }
+    // if (!filters.employeeRoleId || !filters.departmentId) {
+    //   toast.warning('Please select both Employee Role and Department');
+    //   return;
+    // }
 
     try {
       setLoading(true);
       const reportData = {
         institutionId: 35, // This should come from user's context
-        empRoleId: parseInt(filters.employeeRoleId),
-        deptId: parseInt(filters.departmentId)
+        empRoleId: parseInt(filters.employeeRoleId || 0),
+        deptId: parseInt(filters.departmentId || 0)
       };
-      
+
       const response = await CompetencyService.getAdminReport(reportData);
       if (response && response.data) {
         setReportData(response.data);
@@ -94,7 +94,7 @@ const AdminReport = () => {
               ))}
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Department
@@ -118,9 +118,8 @@ const AdminReport = () => {
             <button
               onClick={handleSearch}
               disabled={loading}
-              className={`px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                loading ? 'opacity-70 cursor-not-allowed' : ''
-              }`}
+              className={`px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
             >
               {loading ? 'Searching...' : 'Search'}
             </button>
