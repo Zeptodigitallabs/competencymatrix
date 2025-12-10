@@ -34,12 +34,12 @@ const CompetencyProfile = ({ data, loading, error }) => {
     <div className="bg-white shadow overflow-hidden sm:rounded-lg">
       <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
         <h3 className="text-lg leading-6 font-medium text-gray-900">My Competency</h3>
-        <button 
+        <button
           onClick={() => {
             const state = store.getState();
             const userId = state.user?.userInfo?.userId;
             if (userId) {
-              navigate(`/evidence/${userId}`);
+              navigate(`/evidence/${userId}`, { state: { isCurrentUser: true } });
             }
           }}
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -81,8 +81,8 @@ const CompetencyProfile = ({ data, loading, error }) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div 
-                      className="bg-blue-600 h-2.5 rounded-full" 
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full"
                       style={{ width: `${(item.achievedLevel / item.maxLevel) * 100}%` }}
                     ></div>
                   </div>
@@ -125,10 +125,10 @@ const LearnerDashboard = () => {
   return (
     <div className="py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <CompetencyProfile 
-          data={competencyData} 
-          loading={loading} 
-          error={error} 
+        <CompetencyProfile
+          data={competencyData}
+          loading={loading}
+          error={error}
         />
       </div>
     </div>
