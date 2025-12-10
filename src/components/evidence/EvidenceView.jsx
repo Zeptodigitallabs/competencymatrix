@@ -75,7 +75,7 @@ const EvidenceView = () => {
                         <tr className="bg-gray-100">
                           <th className="py-1 px-3 border text-left text-sm">Course Name</th>
                           <th className="py-1 px-3 border text-center text-sm">Level</th>
-                          <th className="py-1 px-3 border text-center text-sm">Completion Date</th>
+                          <th className="py-1 px-3 border text-center text-sm">Achieved Level</th>
                           <th className="py-1 px-3 border text-center text-sm">Status</th>
                         </tr>
                       </thead>
@@ -87,10 +87,10 @@ const EvidenceView = () => {
                           >
                             <td className="py-1 px-3 border text-sm">{course.courseName}</td>
                             <td className="py-1 px-3 border text-center text-sm">
-                              {course.achievedLevel}/{competency.maxLevel}
+                            {competency.maxLevel}
                             </td>
                             <td className="py-1 px-3 border text-center text-sm">
-                              {new Date(course.completionDate).toLocaleDateString()}
+                             {course.achievedLevel}
                             </td>
                             <td className="py-1 px-3 border text-center text-sm">
                               {course.achievedLevel > 0 ? 'Completed' : 'Not Started'}
