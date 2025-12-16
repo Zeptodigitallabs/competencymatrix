@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AdminReport from './AdminReport';
+import RoleCompetencyHeatmap from './RoleCompetencyHeatmap';
 
 const ReportsViewV1 = () => {
   const [activeTab, setActiveTab] = useState('admin-report');
@@ -29,7 +30,13 @@ const ReportsViewV1 = () => {
       </div>
 
       <div className="space-y-6">
-        {activeTab === 'admin-report' && <AdminReport />}
+        <div className="bg-white p-4 rounded-lg shadow">
+          <AdminReport />
+        </div>
+        
+        <div className="bg-white p-4 rounded-lg shadow">
+          <RoleCompetencyHeatmap />
+        </div>
       </div>
     </div>
   );

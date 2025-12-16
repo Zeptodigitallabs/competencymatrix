@@ -10,16 +10,16 @@ const DashboardService = {
     try {
       const state = store.getState();
       const institutionId = state.user?.userInfo?.institutionId;
-      
+
       if (!institutionId) {
         console.error('Institution ID not found in user info');
         throw new Error('User institution information not available');
       }
-      
+
       const response = await axiosConfig().get(
         `CompetencyMatrix/GetAdminDashboardSummary?institutionId=${institutionId}`
       );
-      
+
       return response.data || {};
     } catch (error) {
       console.error('Error fetching admin dashboard summary:', error);
@@ -35,12 +35,12 @@ const DashboardService = {
     try {
       const state = store.getState();
       const institutionId = state.user?.userInfo?.institutionId;
-      
+
       if (!institutionId) {
         console.error('Institution ID not found in user info');
         throw new Error('User institution information not available');
       }
-      
+
       const response = await axiosConfig().get(
         `CompetencyMatrix/GetTopCompetencyGaps?institutionId=${institutionId}`
       );
@@ -59,16 +59,16 @@ const DashboardService = {
     try {
       const state = store.getState();
       const institutionId = state.user?.userInfo?.institutionId;
-      
+
       if (!institutionId) {
         console.error('Institution ID not found in user info');
         throw new Error('User institution information not available');
       }
-      
+
       const response = await axiosConfig().get(
         `CompetencyMatrix/GetTopAchievedCompetencies?institutionId=${institutionId}`
       );
-      
+
       return response.data || {};
     } catch (error) {
       console.error('Error fetching top achieved competencies:', error);
@@ -84,22 +84,51 @@ const DashboardService = {
     try {
       const state = store.getState();
       const institutionId = state.user?.userInfo?.institutionId;
-      
+
       if (!institutionId) {
         console.error('Institution ID not found in user info');
         throw new Error('User institution information not available');
       }
-      
+
       const response = await axiosConfig().get(
         `CompetencyMatrix/GetCompetencyWiseSummary?institutionId=${institutionId}`
       );
-      
-          return response.data || {};
+
+      return response.data || {};
     } catch (error) {
       console.error('Error fetching competency-wise summary:', error);
       throw error;
     }
+  },
+
+  /**
+ * Fetches the competency role heatmap data
+ * @returns {Promise<Object>} Heatmap data for competencies by role
+ */
+  async getCompetencyRoleHeatmap() {
+    try {
+      const state = store.getState();
+      const institutionId = state.user?.userInfo?.institutionId;
+
+      if (!institutionId) {
+        console.error('Institution ID not found in user info');
+        throw new Error('User institution information not available');
+      }
+
+      const response = await axiosConfig().get(
+        `CompetencyMatrix/GetCompetencyRoleHeatmap?institutionId=${institutionId}`
+      );
+
+      if (response.data && response.data.isSuccess) {
+        return response.data.data;
+      }
+      throw new Error('Failed to fetch competency role heatmap data');
+    } catch (error) {
+      console.error('Error in getCompetencyRoleHeatmap:', error);
+      throw error;
+    }
   }
+
 };
 
 export default DashboardService;
