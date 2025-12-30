@@ -38,6 +38,7 @@ const Login = () => {
     if (autoToken) {
 
       sessionStorage.clear(); 
+      localStorage.clear();
       // Step 1: Save token immediately
       sessionStorage.setItem("token", autoToken);
       sessionStorage.setItem("cameFromTraining", "true");
@@ -55,6 +56,7 @@ const Login = () => {
         .catch((err) => {
           alert("Session expired or invalid. Please login again.");
           sessionStorage.clear();
+          localStorage.clear();
           navigate("/login");
         });
     }
