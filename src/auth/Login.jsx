@@ -37,6 +37,7 @@ const Login = () => {
 
     if (autoToken) {
 
+      sessionStorage.clear(); 
       // Step 1: Save token immediately
       sessionStorage.setItem("token", autoToken);
       sessionStorage.setItem("cameFromTraining", "true");
