@@ -33,19 +33,16 @@ const Login = () => {
   // SSO Auto Login (Highest Priority)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const autoToken = params.get("authtoken");
+    const authtoken = params.get("authtoken");
 
-    if (autoToken) {
-
-      sessionStorage.clear(); 
-      localStorage.clear();
+    if (authtoken) {
       // Step 1: Save token immediately
-      sessionStorage.setItem("token", autoToken);
+      sessionStorage.setItem("token", authtoken);
       sessionStorage.setItem("cameFromTraining", "true");
       // Step 2: Manually trigger login success (same as normal login)
       dispatch({
         type: LOGIN_SUCCESS,
-        payload: { token: autoToken }
+        payload: { token: authtoken }
       });
 
       // Step 3: Now fetch full user info using your existing flow

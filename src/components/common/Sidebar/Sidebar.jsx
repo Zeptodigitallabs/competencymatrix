@@ -38,8 +38,11 @@ const Sidebar = ({ userRole }) => {
   const goBackToTraining = () => {
     const trainingToken = sessionStorage.getItem('token');
     if (trainingToken) {
+      sessionStorage.clear();
+      localStorage.clear();
       // window.open(`https://localhost:44381/RedirectFromCBL?authtoken=${trainingToken}`, "_blank");
       window.location.href = `https://lmsapi.zeptolearn.com/RedirectFromCBL?authtoken=${trainingToken}`;
+      //window.location.href = `http://localhost:5173/?token=${trainingToken}`;
     } else {
       window.location.href = 'https://lmsapi.zeptolearn.com';
     }
