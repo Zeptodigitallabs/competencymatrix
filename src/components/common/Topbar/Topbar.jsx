@@ -33,7 +33,7 @@ const Topbar = ({ onToggleSidebar }) => {
         </button>
         <h1 className="text-lg font-semibold">Competency Matrix</h1>
       </div>
-      <div className="flex items-center gap-3">
+      {sessionStorage.getItem("cameFromTraining") !== "true" && <div className="flex items-center gap-3">
         <div className="text-sm text-gray-600">Organization: Acme Learning</div>
         <button
           onClick={handleLogout}
@@ -41,7 +41,7 @@ const Topbar = ({ onToggleSidebar }) => {
         >
           Logout
         </button>
-      </div>
+      </div>}
     </div>
   );
 };

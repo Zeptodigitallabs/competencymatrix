@@ -188,6 +188,8 @@ const Sidebar = ({ userRole }) => {
           {renderNavItems(getNavItems())}
         </div>
       </nav>
+
+      {sessionStorage.getItem("cameFromTraining") !== "true" && (
       <div className="p-4 border-t border-indigo-700">
         <button
           onClick={() => {
@@ -202,6 +204,7 @@ const Sidebar = ({ userRole }) => {
           Logout
         </button>
       </div>
+      )}
     </div>
   );
 };
